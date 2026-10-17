@@ -23,15 +23,6 @@ public static class Ui
     public static uint Rgba(float r, float g, float b, float a = 1f) =>
         ImGui.ColorConvertFloat4ToU32(new Num.Vector4(r, g, b, a));
 
-    /// <summary>Places a window on first use only; a saved layout wins afterwards.</summary>
-    public static void PlaceFirstUse(float x, float y, float w, float h)
-    {
-        var vp = ImGui.GetMainViewport();
-        ImGui.SetNextWindowPos(new Num.Vector2(vp.WorkPos.X + vp.WorkSize.X * x, vp.WorkPos.Y + vp.WorkSize.Y * y),
-            ImGuiCond.FirstUseEver);
-        ImGui.SetNextWindowSize(new Num.Vector2(vp.WorkSize.X * w, vp.WorkSize.Y * h), ImGuiCond.FirstUseEver);
-    }
-
     /// <summary>Sends a one-byte payload; the real data lives in the panel that started the drag.</summary>
     public static unsafe void SetPayload(string type)
     {

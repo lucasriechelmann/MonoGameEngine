@@ -51,7 +51,49 @@ public sealed unsafe class ImGuiRenderer : IDisposable
             View = Matrix.Identity,
         };
 
+        LoadFonts();
+        Ui.Win11Theme.Apply();
         RebuildFontAtlas();
+    }
+
+    /// <summary>A large Material Icons font for icon tiles (for example in the Assets panel). Null if the font file is missing.</summary>
+    public static ImFontPtr? LargeIcons { get; private set; }
+
+    private const float TextSize = 17f;
+    private const float IconSize = 19f;
+    private const float LargeIconSize = 46f;
+
+    /// <summary>
+    /// Segoe UI (the Windows 11 UI font, read from the system and not redistributed) merged with Material Icons.
+    /// Falls back to ImGui's built-in font when Segoe UI is not installed.
+    /// </summary>
+    private void LoadFonts()
+    {
+        var io = ImGui.GetIO();
+        var segoe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "segoeui.ttf");
+        if (File.Exists(segoe)) io.Fonts.AddFontFromFileTTF(segoe, TextSize);
+        else io.Fonts.AddFontDefault();
+
+        var iconFont = Path.Combine(AppContext.BaseDirectory, "Fonts", "MaterialIcons-Regular.ttf");
+        if (!File.Exists(iconFont))
+        {
+            Engine.Log.Warning($"Icon font not found at '{iconFont}'.");
+            return;
+        }
+
+        var ranges = Ui.Icons.BuildGlyphRanges();
+        var rangePtr = Marshal.AllocHGlobal(ranges.Length * sizeof(ushort)); // must outlive the atlas build
+        Marshal.Copy((short[])(Array)ranges, 0, rangePtr, ranges.Length);
+
+        var merge = new ImFontConfigPtr(ImGuiNative.ImFontConfig_ImFontConfig());
+        merge.MergeMode = true;
+        merge.PixelSnapH = true;
+        merge.GlyphMinAdvanceX = IconSize + 2f;
+        merge.GlyphOffset = new System.Numerics.Vector2(0f, 3f);
+        io.Fonts.AddFontFromFileTTF(iconFont, IconSize, merge, rangePtr);
+
+        var large = new ImFontConfigPtr(ImGuiNative.ImFontConfig_ImFontConfig());
+        LargeIcons = io.Fonts.AddFontFromFileTTF(iconFont, LargeIconSize, large, rangePtr);
     }
 
     /// <summary>Sets where ImGui saves and loads the window layout. The string lives as long as the process.</summary>

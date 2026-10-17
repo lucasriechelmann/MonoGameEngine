@@ -22,10 +22,11 @@ public sealed class SceneViewPanel(EditorState state, EditorSettings settings, S
     /// <summary>Draws the window.</summary>
     public void Draw()
     {
-        Ui.PlaceFirstUse(0.18f, 0f, 0.56f, 0.62f);
+        PanelLayout.Place("Scene", 0.18f, 0f, 0.56f, 0.62f);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Num.Vector2.Zero);
         bool visible = ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
         ImGui.PopStyleVar();
+        PanelLayout.Remember("Scene");
         if (!visible)
         {
             ImGui.End();
@@ -58,7 +59,10 @@ public sealed class SceneViewPanel(EditorState state, EditorSettings settings, S
         bool grid = settings.ShowGrid;
         if (ImGui.Checkbox("Grid", ref grid)) settings.ShowGrid = grid;
         ImGui.SameLine();
-        if (ImGui.Button("Reset View")) state.ViewCamera.Reset();
+        bool colliders = settings.ShowColliders;
+        if (ImGui.Checkbox("Colliders", ref colliders)) settings.ShowColliders = colliders;
+        ImGui.SameLine();
+        if (ImGui.Button(Icons.Refresh + " Reset View")) state.ViewCamera.Reset();
         ImGui.SameLine();
         ImGui.TextDisabled($"{state.ViewCamera.Zoom * 100f:0}%  |  middle mouse: pan  |  wheel: zoom");
         ImGui.SetCursorPosX(0);
@@ -122,6 +126,10 @@ public sealed class SceneViewPanel(EditorState state, EditorSettings settings, S
 
         var selected = state.Selected;
         var entities = state.ActiveScene.Entities;
+        if (settings.ShowColliders)
+        {
+            for (int i = 0; i < entities.Count; i++) DrawColliders(draw, camera, entities[i], origin, size);
+        }
         for (int i = 0; i < entities.Count; i++)
         {
             var camComponent = entities[i].GetComponent<Camera2D>();
@@ -141,6 +149,34 @@ public sealed class SceneViewPanel(EditorState state, EditorSettings settings, S
             draw.AddText(new Num.Vector2(origin.X + 10, origin.Y + 8), Ui.Rgba(1f, 0.75f, 0.2f), label);
         }
         draw.PopClipRect();
+    }
+
+    /// <summary>Outlines the box and circle colliders of an entity (green, or orange for triggers).</summary>
+    private static void DrawColliders(ImDrawListPtr draw, SceneViewCamera view, Entity entity, Vector2 origin, Vector2 size)
+    {
+        if (!entity.ActiveInHierarchy) return;
+        var components = entity.Components;
+        for (int i = 0; i < components.Count; i++)
+        {
+            if (components[i] is not Collider2D collider) continue;
+            uint color = collider.IsTrigger ? Ui.Rgba(1f, 0.65f, 0.2f, 0.9f) : Ui.Rgba(0.3f, 0.9f, 0.4f, 0.9f);
+
+            if (collider is BoxCollider2D box)
+            {
+                var corners = box.GetWorldCorners();
+                for (int c = 0; c < 4; c++)
+                {
+                    var a = origin + view.WorldToScreen(corners[c], size);
+                    var b = origin + view.WorldToScreen(corners[(c + 1) % 4], size);
+                    draw.AddLine(a.ToNum(), b.ToNum(), color, 1.5f);
+                }
+            }
+            else if (collider is CircleCollider2D circle)
+            {
+                var centre = origin + view.WorldToScreen(circle.GetWorldCenter(), size);
+                draw.AddCircle(centre.ToNum(), circle.GetWorldRadius() * view.Zoom, color, 40, 1.5f);
+            }
+        }
     }
 
     private static void DrawSelectionOutline(ImDrawListPtr draw, SceneViewCamera camera, Entity entity, Vector2 origin, Vector2 size)

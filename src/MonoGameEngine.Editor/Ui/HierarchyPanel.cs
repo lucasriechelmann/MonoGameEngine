@@ -17,14 +17,16 @@ public sealed class HierarchyPanel(EditorState state)
     /// <summary>Draws the window.</summary>
     public void Draw()
     {
-        Ui.PlaceFirstUse(0f, 0f, 0.18f, 0.62f);
-        if (!ImGui.Begin("Hierarchy"))
+        PanelLayout.Place("Hierarchy", 0f, 0f, 0.18f, 0.62f);
+        bool visible = ImGui.Begin("Hierarchy");
+        PanelLayout.Remember("Hierarchy");
+        if (!visible)
         {
             ImGui.End();
             return;
         }
 
-        if (ImGui.Button("+ Create")) ImGui.OpenPopup("create_menu");
+        if (ImGui.Button(Icons.Add + " Create")) ImGui.OpenPopup("create_menu");
         if (ImGui.BeginPopup("create_menu"))
         {
             DrawCreateItems(null);
@@ -74,7 +76,7 @@ public sealed class HierarchyPanel(EditorState state)
 
         bool dimmed = !entity.ActiveInHierarchy;
         if (dimmed) ImGui.PushStyleColor(ImGuiCol.Text, ImGui.GetStyle().Colors[(int)ImGuiCol.TextDisabled]);
-        bool open = ImGui.TreeNodeEx($"{entity.Name}###{entity.Id}", flags);
+        bool open = ImGui.TreeNodeEx($"{IconFor(entity)}  {entity.Name}###{entity.Id}", flags);
         if (dimmed) ImGui.PopStyleColor();
 
         if (ImGui.IsItemClicked(ImGuiMouseButton.Left) && !ImGui.IsItemToggledOpen()) state.Select(entity);
@@ -138,11 +140,18 @@ public sealed class HierarchyPanel(EditorState state)
         ImGui.EndDragDropTarget();
     }
 
+    private static string IconFor(Entity entity)
+    {
+        if (entity.GetComponent<Camera2D>() != null) return Icons.PhotoCamera;
+        if (entity.GetComponent<SpriteRenderer>() != null) return Icons.Image;
+        return entity.Children.Count > 0 ? Icons.Layers : Icons.CropFree;
+    }
+
     private void DrawEntityMenu(Entity entity)
     {
-        if (ImGui.MenuItem("Rename", "F2")) BeginRename(entity);
-        if (ImGui.MenuItem("Duplicate", "Ctrl+D")) state.Duplicate(entity);
-        if (ImGui.MenuItem("Delete", "Del")) state.Delete(entity);
+        if (ImGui.MenuItem(Icons.Edit + "  Rename", "F2")) BeginRename(entity);
+        if (ImGui.MenuItem(Icons.ContentCopy + "  Duplicate", "Ctrl+D")) state.Duplicate(entity);
+        if (ImGui.MenuItem(Icons.Delete + "  Delete", "Del")) state.Delete(entity);
         ImGui.Separator();
         DrawCreateItems(entity);
     }

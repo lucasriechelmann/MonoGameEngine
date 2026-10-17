@@ -26,9 +26,10 @@ public static class ScenePicker
             var texture = sprite?.GetTexture();
             if (sprite != null && texture != null)
             {
+                var frame = sprite.GetSourceRectangle(texture);
                 var local = entity.Transform.InverseTransformPoint(world)
-                            + new Vector2(texture.Width * sprite.Origin.X, texture.Height * sprite.Origin.Y);
-                if (local.X < 0 || local.Y < 0 || local.X > texture.Width || local.Y > texture.Height) continue;
+                            + new Vector2(frame.Width * sprite.Origin.X, frame.Height * sprite.Origin.Y);
+                if (local.X < 0 || local.Y < 0 || local.X > frame.Width || local.Y > frame.Height) continue;
                 depth = sprite.LayerDepth;
             }
             else if (Vector2.DistanceSquared(entity.Transform.WorldPosition, world) <= radius * radius)
@@ -56,7 +57,8 @@ public static class ScenePicker
         var texture = sprite?.GetTexture();
         if (sprite == null || texture == null) return null;
 
-        var size = new Vector2(texture.Width, texture.Height);
+        var frame = sprite.GetSourceRectangle(texture);
+        var size = new Vector2(frame.Width, frame.Height);
         var origin = size * sprite.Origin;
         var t = entity.Transform;
         return

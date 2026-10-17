@@ -39,6 +39,19 @@ public sealed class EditorGame : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         Window.AllowUserResizing = true;
+        Window.ClientSizeChanged += OnClientSizeChanged;
+    }
+
+    /// <summary>Keeps the back buffer the same size as the window, including on maximize and restore.</summary>
+    private void OnClientSizeChanged(object? sender, EventArgs e)
+    {
+        var bounds = Window.ClientBounds;
+        if (bounds.Width <= 0 || bounds.Height <= 0) return; // minimized
+        if (_graphics.PreferredBackBufferWidth == bounds.Width && _graphics.PreferredBackBufferHeight == bounds.Height) return;
+
+        _graphics.PreferredBackBufferWidth = bounds.Width;
+        _graphics.PreferredBackBufferHeight = bounds.Height;
+        _graphics.ApplyChanges();
     }
 
     protected override void Initialize()
@@ -60,6 +73,7 @@ public sealed class EditorGame : Game
         Directory.CreateDirectory(EditorSettings.Directory);
         _imgui.SetIniFilename(EditorSettings.LayoutPath);
 
+        PanelLayout.Load(_settings.PanelLayout);
         _input = new ImGuiInput(Window);
         _assets = new AssetManager(Content, contentRoot);
         _state = new EditorState(_assets);
@@ -91,6 +105,7 @@ public sealed class EditorGame : Game
     protected override void Draw(GameTime gameTime)
     {
         _imgui.BeginFrame(gameTime);
+        PanelLayout.BeginFrame();
 
         ImGui.DockSpaceOverViewport(0, ImGui.GetMainViewport(), ImGuiDockNodeFlags.PassthruCentralNode);
         _menu.Draw();
@@ -113,7 +128,7 @@ public sealed class EditorGame : Game
         // The scene render target is drawn after the panels decided its size, before ImGui samples it.
         _sceneRenderer.Render(_state, _settings.ShowGrid);
         GraphicsDevice.SetRenderTarget(null);
-        GraphicsDevice.Clear(new Color(38, 38, 42));
+        GraphicsDevice.Clear(new Color(27, 27, 27));
         _imgui.EndFrame();
 
         base.Draw(gameTime);
@@ -121,6 +136,7 @@ public sealed class EditorGame : Game
 
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
+        _settings.PanelLayout = PanelLayout.Export();
         _settings.WindowWidth = Window.ClientBounds.Width;
         _settings.WindowHeight = Window.ClientBounds.Height;
         _settings.Save();

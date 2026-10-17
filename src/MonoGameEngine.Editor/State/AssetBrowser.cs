@@ -10,6 +10,7 @@ public sealed class AssetBrowser(AssetManager assets)
 {
     private static readonly HashSet<string> HiddenFolders = new(StringComparer.OrdinalIgnoreCase) { "bin", "obj" };
 
+    private readonly Dictionary<string, List<AssetEntry>> _folderCache = new(StringComparer.OrdinalIgnoreCase);
     private List<string>? _allTextures;
     private string? _listedDirectory;
     private List<AssetEntry> _entries = new();
@@ -34,6 +35,36 @@ public sealed class AssetBrowser(AssetManager assets)
     public bool IsAtRoot => string.Equals(Path.GetFullPath(CurrentDirectory), Path.GetFullPath(Root),
         StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>The sub folders of <paramref name="directory"/> (cached until <see cref="Refresh"/>), for the folder tree.</summary>
+    public IReadOnlyList<AssetEntry> GetSubfolders(string directory)
+    {
+        if (_folderCache.TryGetValue(directory, out var cached)) return cached;
+
+        var folders = new List<AssetEntry>();
+        try
+        {
+            foreach (var dir in Directory.EnumerateDirectories(directory).Order())
+            {
+                var name = Path.GetFileName(dir);
+                if (!HiddenFolders.Contains(name)) folders.Add(new AssetEntry(name, assets.ToRelative(dir) ?? name, dir, true));
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"Could not list '{directory}': {ex.Message}");
+        }
+        return _folderCache[directory] = folders;
+    }
+
+    /// <summary>True if <paramref name="path"/> is <paramref name="ancestor"/> or inside it.</summary>
+    public static bool IsSameOrInside(string ancestor, string path)
+    {
+        var a = Path.TrimEndingDirectorySeparator(Path.GetFullPath(ancestor));
+        var p = Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
+        return p.Equals(a, StringComparison.OrdinalIgnoreCase)
+               || p.StartsWith(a + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>Opens a sub folder.</summary>
     public void Enter(string fullPath) => CurrentDirectory = fullPath;
 
@@ -52,6 +83,7 @@ public sealed class AssetBrowser(AssetManager assets)
     public void Refresh()
     {
         _allTextures = null;
+        _folderCache.Clear();
         _listedDirectory = CurrentDirectory;
         _entries = new List<AssetEntry>();
         try

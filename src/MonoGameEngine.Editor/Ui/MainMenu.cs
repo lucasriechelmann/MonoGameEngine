@@ -33,7 +33,7 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
         if (ImGui.MenuItem("New", "Ctrl+N")) Guarded(state.NewScene);
         if (ImGui.MenuItem("Open...", "Ctrl+O")) Guarded(ShowOpenDialog);
         ImGui.Separator();
-        if (ImGui.MenuItem("Save", "Ctrl+S")) SaveOrAsk(null);
+        if (ImGui.MenuItem(Icons.Save + "  Save", "Ctrl+S")) SaveOrAsk(null);
         if (ImGui.MenuItem("Save As...")) ShowSaveDialog(null);
         ImGui.Separator();
         if (ImGui.MenuItem("Exit")) Guarded(exit);
@@ -44,14 +44,14 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
     {
         if (!ImGui.BeginMenu("Edit")) return;
         var history = state.History;
-        if (ImGui.MenuItem(history.CanUndo ? $"Undo {history.UndoName}" : "Undo", "Ctrl+Z", false, state.IsEditing && history.CanUndo))
+        if (ImGui.MenuItem(history.CanUndo ? $"{Icons.Undo}  Undo {history.UndoName}" : $"{Icons.Undo}  Undo", "Ctrl+Z", false, state.IsEditing && history.CanUndo))
             state.Undo();
-        if (ImGui.MenuItem(history.CanRedo ? $"Redo {history.RedoName}" : "Redo", "Ctrl+Y", false, state.IsEditing && history.CanRedo))
+        if (ImGui.MenuItem(history.CanRedo ? $"{Icons.Redo}  Redo {history.RedoName}" : $"{Icons.Redo}  Redo", "Ctrl+Y", false, state.IsEditing && history.CanRedo))
             state.Redo();
         ImGui.Separator();
         var selected = state.Selected;
-        if (ImGui.MenuItem("Duplicate", "Ctrl+D", false, selected != null)) state.Duplicate(selected!);
-        if (ImGui.MenuItem("Delete", "Del", false, selected != null)) state.Delete(selected!);
+        if (ImGui.MenuItem(Icons.ContentCopy + "  Duplicate", "Ctrl+D", false, selected != null)) state.Duplicate(selected!);
+        if (ImGui.MenuItem(Icons.Delete + "  Delete", "Del", false, selected != null)) state.Delete(selected!);
         ImGui.EndMenu();
     }
 
@@ -80,24 +80,24 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
 
     private void DrawPlayControls()
     {
-        const float width = 64f;
+        const float width = 92f;
         ImGui.SetCursorPosX((ImGui.GetWindowWidth() - width * 3 - ImGui.GetStyle().ItemSpacing.X * 2) * 0.5f);
 
         bool playing = state.Mode == PlayMode.Playing;
         bool paused = state.Mode == PlayMode.Paused;
 
         if (playing) ImGui.PushStyleColor(ImGuiCol.Button, new Num.Vector4(0.2f, 0.55f, 0.25f, 1f));
-        if (ImGui.Button("Play", new Num.Vector2(width, 0))) state.Play();
+        if (ImGui.Button(Icons.PlayArrow + " Play", new Num.Vector2(width, 0))) state.Play();
         if (playing) ImGui.PopStyleColor();
 
         if (paused) ImGui.PushStyleColor(ImGuiCol.Button, new Num.Vector4(0.7f, 0.55f, 0.15f, 1f));
         ImGui.BeginDisabled(state.Mode == PlayMode.Edit);
-        if (ImGui.Button("Pause", new Num.Vector2(width, 0))) state.Pause();
+        if (ImGui.Button(Icons.Pause + " Pause", new Num.Vector2(width, 0))) state.Pause();
         ImGui.EndDisabled();
         if (paused) ImGui.PopStyleColor();
 
         ImGui.BeginDisabled(state.Mode == PlayMode.Edit);
-        if (ImGui.Button("Stop", new Num.Vector2(width, 0))) state.Stop();
+        if (ImGui.Button(Icons.Stop + " Stop", new Num.Vector2(width, 0))) state.Stop();
         ImGui.EndDisabled();
     }
 

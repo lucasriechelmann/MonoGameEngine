@@ -6,6 +6,10 @@
     <PublishReadyToRun>false</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Icon font and its license, copied next to the exe. -->
+    <None Include="Assets\Fonts\*" Link="Fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <MonoGameContentReference Include="..\..\content\Content.mgcb" Link="Content\Content.mgcb" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />

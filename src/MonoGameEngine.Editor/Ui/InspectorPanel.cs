@@ -20,8 +20,10 @@ public sealed class InspectorPanel(EditorState state, EditTracker tracker, Asset
     /// <summary>Draws the window.</summary>
     public void Draw()
     {
-        Ui.PlaceFirstUse(0.74f, 0f, 0.26f, 0.62f);
-        if (!ImGui.Begin("Inspector"))
+        PanelLayout.Place("Inspector", 0.74f, 0f, 0.26f, 0.62f);
+        bool visible = ImGui.Begin("Inspector");
+        PanelLayout.Remember("Inspector");
+        if (!visible)
         {
             ImGui.End();
             return;
@@ -31,6 +33,9 @@ public sealed class InspectorPanel(EditorState state, EditTracker tracker, Asset
         if (entity == null)
         {
             ImGui.TextDisabled("Nothing selected.");
+            ImGui.Spacing();
+            ImGui.SeparatorText("Scene");
+            foreach (var member in MemberCache.GetMembers(typeof(Scene))) DrawMember(state.ActiveScene, member);
             ImGui.End();
             return;
         }
@@ -226,7 +231,7 @@ public sealed class InspectorPanel(EditorState state, EditTracker tracker, Asset
 
     private void DrawAddComponent(Entity entity)
     {
-        if (ImGui.Button("Add Component", new Num.Vector2(-1, 0))) ImGui.OpenPopup("add_component");
+        if (ImGui.Button(Icons.Add + "  Add Component", new Num.Vector2(-1, 0))) ImGui.OpenPopup("add_component");
         if (!ImGui.BeginPopup("add_component")) return;
 
         foreach (var type in ComponentRegistry.GetTypes())

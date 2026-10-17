@@ -37,7 +37,7 @@ public sealed class FileDialog
         if (!ImGui.BeginPopupModal(_title, ref open)) return;
 
         ImGui.TextUnformatted(_directory);
-        if (ImGui.Button("Up")) _directory = Directory.GetParent(_directory)?.FullName ?? _directory;
+        if (ImGui.Button(Icons.ArrowUpward + " Up")) _directory = Directory.GetParent(_directory)?.FullName ?? _directory;
         ImGui.Separator();
 
         float footer = ImGui.GetFrameHeightWithSpacing() * (_saving ? 2 : 1) + 6;
@@ -47,13 +47,13 @@ public sealed class FileDialog
         {
             foreach (var dir in Directory.EnumerateDirectories(_directory).Order())
             {
-                if (ImGui.Selectable("[dir] " + Path.GetFileName(dir), false, ImGuiSelectableFlags.AllowDoubleClick)
+                if (ImGui.Selectable(Icons.Folder + "  " + Path.GetFileName(dir), false, ImGuiSelectableFlags.AllowDoubleClick)
                     && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left)) enter = dir;
             }
             foreach (var file in Directory.EnumerateFiles(_directory, "*" + SceneSerializer.FileExtension).Order())
             {
                 var name = Path.GetFileName(file);
-                if (!ImGui.Selectable(name, name == _fileName, ImGuiSelectableFlags.AllowDoubleClick)) continue;
+                if (!ImGui.Selectable(Icons.Layers + "  " + name + "##" + name, name == _fileName, ImGuiSelectableFlags.AllowDoubleClick)) continue;
                 _fileName = name;
                 if (!_saving && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left)) Accept();
             }

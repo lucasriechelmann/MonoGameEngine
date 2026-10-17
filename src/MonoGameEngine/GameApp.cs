@@ -24,6 +24,19 @@ public class GameApp : Game
         IsMouseVisible = true;
         Window.Title = "MonoGameEngine";
         Window.AllowUserResizing = true;
+        Window.ClientSizeChanged += OnClientSizeChanged;
+    }
+
+    /// <summary>Keeps the back buffer the same size as the window, including on maximize and restore.</summary>
+    private void OnClientSizeChanged(object? sender, EventArgs e)
+    {
+        var bounds = Window.ClientBounds;
+        if (bounds.Width <= 0 || bounds.Height <= 0) return; // minimized
+        if (_graphics.PreferredBackBufferWidth == bounds.Width && _graphics.PreferredBackBufferHeight == bounds.Height) return;
+
+        _graphics.PreferredBackBufferWidth = bounds.Width;
+        _graphics.PreferredBackBufferHeight = bounds.Height;
+        _graphics.ApplyChanges();
     }
 
     protected override void LoadContent()

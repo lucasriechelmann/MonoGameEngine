@@ -21,6 +21,9 @@ public sealed class EditorSettings
     /// <summary>Show the grid in the Scene view.</summary>
     public bool ShowGrid { get; set; } = true;
 
+    /// <summary>Draw collider outlines in the Scene view.</summary>
+    public bool ShowColliders { get; set; } = true;
+
     /// <summary>Show the ImGui demo window.</summary>
     public bool ShowDemoWindow { get; set; }
 
@@ -29,6 +32,9 @@ public sealed class EditorSettings
 
     /// <summary>Window height in pixels.</summary>
     public int WindowHeight { get; set; } = 900;
+
+    /// <summary>Panel rectangles as fractions of the window work area (x, y, width, height), keyed by window name.</summary>
+    public Dictionary<string, float[]>? PanelLayout { get; set; }
 
     /// <summary>Loads settings, returning defaults if the file is missing or unreadable.</summary>
     public static EditorSettings Load()

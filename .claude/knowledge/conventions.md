@@ -15,6 +15,7 @@
 - Inspector metadata uses the Engine attributes; never reference ImGui from Engine or Game. Reference: `src/MonoGameEngine.Engine/SpriteRenderer.cs`.
 - Asset references are source paths relative to `content/` with forward slashes (`AssetManager.Normalize`), for example `Textures/crate.png`. The asset must also be listed in `content/Content.mgcb`.
 - Update and draw loops use index `for` loops over `IReadOnlyList`, with no LINQ or allocations. Reference: `SceneRunner.cs`. Destroying entities during update is deferred with `Entity.Destroy()` and `Scene.FlushDestroyed()`.
+- Runtime-only component state (velocities, current frame) is not saved: use a get-only or private-set property, or `[JsonIgnore]` (see `Physics/Rigidbody2D.cs`). Keep third-party types (Aether) internal to the Engine.
 - Log with `Log.Info/Warning/Error`, not `Console`. Failures while loading assets or scenes are logged and recovered, not thrown to the frame loop.
 
 ## Editor
@@ -23,13 +24,15 @@
 - Every user change is a command from `MonoGameEngine.Engine.Commands`. Use `state.Execute(cmd)` for a change not yet applied and `state.Record(cmd)` for one already applied live. Both skip history while playing.
 - Live inspector edits go through `EditTracker.Changed(target, property, before)` and then the value is set; do not push a command per frame. Reference: `Ui/InspectorPanel.cs`.
 - A gizmo drag changes the value live and records one `SetPropertyCommand` on release. Reference: `Ui/TranslateGizmo.cs`.
-- Panels place themselves with `Ui.PlaceFirstUse(...)` and use stable window names (they are keys in `imgui.ini`).
+- Panels call `PanelLayout.Place(name, x, y, w, h)` before `ImGui.Begin` and `PanelLayout.Remember(name)` right after it, and use stable window names (they are keys in `imgui.ini` and `PanelLayout`). Reference: `Ui/HierarchyPanel.cs`.
 - Drag and drop uses `Ui.SetPayload`/`Ui.AcceptPayload` with a payload type constant and keeps the real data in the panel or `EditorState` (`DraggedAsset`).
 - Editor buffers that touch the GPU are created once and reused (`ImGuiRenderer.cs`, `SceneViewRenderer.EnsureTarget`). `ImGuiInput` forwards nothing while the window is unfocused.
+- Icons are Material Icons string constants in `Ui/Icons.cs`, concatenated with a label (`Icons.Save + "  Save"`). Adding a constant makes `BuildGlyphRanges` load it. Large tiles push `ImGuiRenderer.LargeIcons`. Reference: `Ui/AssetsPanel.cs`.
 - XNA and System.Numerics both define `Vector2`: panels alias `System.Numerics` as `Num` and convert with `ToNum()` / `ToXna()` from `Ui/Ui.cs`.
 
 ## Testing
 
+- Physics and animation are tested without a graphics device by driving `SceneRunner.Update` with a fixed `GameTime` (`AnimationAndPhysicsTests.cs`).
 - xUnit in `tests/MonoGameEngine.Engine.Tests/`: serialization round trips (`SerializationTests.cs`), commands (`CommandTests.cs`), lifecycle (`LifecycleTests.cs`), hierarchy and transforms (`SceneAndTransformTests.cs`). Tests that define custom components call `ComponentRegistry.RegisterAssembly`.
 - Editor code has no automated tests; test editor logic by keeping it in Engine or `State/`.
 

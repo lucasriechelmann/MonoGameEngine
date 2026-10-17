@@ -15,14 +15,16 @@ public sealed class ConsolePanel(ConsoleLog log)
     /// <summary>Draws the window.</summary>
     public void Draw()
     {
-        Ui.PlaceFirstUse(0.5f, 0.62f, 0.5f, 0.38f);
-        if (!ImGui.Begin("Console"))
+        PanelLayout.Place("Console", 0.5f, 0.62f, 0.5f, 0.38f);
+        bool visible = ImGui.Begin("Console");
+        PanelLayout.Remember("Console");
+        if (!visible)
         {
             ImGui.End();
             return;
         }
 
-        if (ImGui.Button("Clear")) log.Clear();
+        if (ImGui.Button(Icons.Delete + " Clear")) log.Clear();
         ImGui.SameLine();
         FilterToggle("Info", LogLevel.Info);
         ImGui.SameLine();

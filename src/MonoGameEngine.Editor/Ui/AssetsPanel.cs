@@ -11,28 +11,54 @@ public sealed class AssetsPanel(EditorState state, AssetBrowser browser, ImGuiRe
 {
     private readonly Dictionary<string, IntPtr> _thumbnails = new();
     private float _thumbSize = 64f;
+    private float _treeWidth = 190f;
+    private string? _lastDirectory;
+    private bool _revealCurrent;
 
     /// <summary>Draws the window.</summary>
     public void Draw()
     {
-        Ui.PlaceFirstUse(0f, 0.62f, 0.5f, 0.38f);
-        if (!ImGui.Begin("Assets"))
+        PanelLayout.Place("Assets", 0f, 0.62f, 0.5f, 0.38f);
+        bool visible = ImGui.Begin("Assets");
+        PanelLayout.Remember("Assets");
+        if (!visible)
         {
             ImGui.End();
             return;
         }
 
         ImGui.BeginDisabled(browser.IsAtRoot);
-        if (ImGui.Button("Up")) browser.Up();
+        if (ImGui.Button(Icons.ArrowUpward + " Up")) browser.Up();
         ImGui.EndDisabled();
         ImGui.SameLine();
-        if (ImGui.Button("Refresh")) browser.Refresh();
+        if (ImGui.Button(Icons.Refresh + " Refresh")) browser.Refresh();
         ImGui.SameLine();
         ImGui.TextDisabled("content/" + browser.CurrentRelative);
         ImGui.SameLine(ImGui.GetContentRegionAvail().X - 110f + ImGui.GetCursorPosX());
         ImGui.SetNextItemWidth(110f);
         ImGui.SliderFloat("##thumb", ref _thumbSize, 32f, 128f, "%.0f px");
         ImGui.Separator();
+
+        // Folder tree on the left, with a draggable splitter, then the files of the selected folder.
+        if (_lastDirectory != browser.CurrentDirectory)
+        {
+            _lastDirectory = browser.CurrentDirectory;
+            _revealCurrent = true; // open the tree down to the folder (it may have changed from the grid or Up)
+        }
+        _treeWidth = Math.Clamp(_treeWidth, 120f, MathF.Max(120f, ImGui.GetContentRegionAvail().X - 160f));
+
+        ImGui.BeginChild("assets_tree", new Num.Vector2(_treeWidth, 0));
+        DrawFolderNode(browser.Root, "content", isRoot: true);
+        ImGui.EndChild();
+        _revealCurrent = false;
+
+        ImGui.SameLine(0f, 2f);
+        ImGui.InvisibleButton("##assets_splitter", new Num.Vector2(5f, ImGui.GetContentRegionAvail().Y));
+        if (ImGui.IsItemActive()) _treeWidth += ImGui.GetIO().MouseDelta.X;
+        if (ImGui.IsItemHovered() || ImGui.IsItemActive())
+            ImGui.GetWindowDrawList().AddRectFilled(ImGui.GetItemRectMin() + new Num.Vector2(2f, 0f),
+                ImGui.GetItemRectMax() - new Num.Vector2(1f, 0f), Ui.Rgba(0.38f, 0.8f, 1f, 0.8f));
+        ImGui.SameLine(0f, 2f);
 
         ImGui.BeginChild("assets_list", Num.Vector2.Zero);
         float cell = _thumbSize + ImGui.GetStyle().ItemSpacing.X + 8f;
@@ -56,6 +82,30 @@ public sealed class AssetsPanel(EditorState state, AssetBrowser browser, ImGuiRe
         ImGui.End();
     }
 
+    /// <summary>One folder in the tree. Clicking selects it; the arrow expands it.</summary>
+    private void DrawFolderNode(string fullPath, string name, bool isRoot = false)
+    {
+        var subfolders = browser.GetSubfolders(fullPath);
+        bool isCurrent = AssetBrowser.IsSameOrInside(fullPath, browser.CurrentDirectory)
+                         && AssetBrowser.IsSameOrInside(browser.CurrentDirectory, fullPath);
+
+        var flags = ImGuiTreeNodeFlags.OpenOnArrow | ImGuiTreeNodeFlags.SpanAvailWidth;
+        if (subfolders.Count == 0) flags |= ImGuiTreeNodeFlags.Leaf;
+        if (isCurrent) flags |= ImGuiTreeNodeFlags.Selected;
+        if (isRoot) ImGui.SetNextItemOpen(true, ImGuiCond.Once);
+        else if (_revealCurrent && AssetBrowser.IsSameOrInside(fullPath, browser.CurrentDirectory))
+            ImGui.SetNextItemOpen(true, ImGuiCond.Always);
+
+        bool open = ImGui.TreeNodeEx($"{(isCurrent ? Icons.FolderOpen : Icons.Folder)}  {name}###tree_{fullPath}", flags);
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Left) && !ImGui.IsItemToggledOpen()) browser.Enter(fullPath);
+
+        if (open)
+        {
+            foreach (var folder in subfolders) DrawFolderNode(folder.FullPath, folder.Name);
+            ImGui.TreePop();
+        }
+    }
+
     private void DrawEntry(AssetEntry entry, ref string? enterDirectory)
     {
         var size = new Num.Vector2(_thumbSize, _thumbSize);
@@ -77,8 +127,17 @@ public sealed class AssetsPanel(EditorState state, AssetBrowser browser, ImGuiRe
         }
         else
         {
-            string icon = entry.IsDirectory ? "[dir]" : entry.Name.EndsWith(SceneFileExtension, StringComparison.OrdinalIgnoreCase) ? "[scene]" : "[file]";
+            bool isScene = entry.Name.EndsWith(SceneFileExtension, StringComparison.OrdinalIgnoreCase);
+            string icon = entry.IsDirectory ? Icons.Folder : isScene ? Icons.Layers : Icons.File;
+            var tint = entry.IsDirectory ? new Num.Vector4(1f, 0.78f, 0.28f, 1f)
+                : isScene ? new Num.Vector4(0.38f, 0.8f, 1f, 1f)
+                : new Num.Vector4(0.78f, 0.78f, 0.78f, 1f);
+
+            if (ImGuiRenderer.LargeIcons is { } large) ImGui.PushFont(large);
+            ImGui.PushStyleColor(ImGuiCol.Text, tint);
             ImGui.Button($"{icon}##icon", size);
+            ImGui.PopStyleColor();
+            if (ImGuiRenderer.LargeIcons != null) ImGui.PopFont();
             doubleClicked = ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left);
         }
 

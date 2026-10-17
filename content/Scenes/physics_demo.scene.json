@@ -1,0 +1,573 @@
+{
+  "version": 1,
+  "name": "Physics Demo",
+  "gravity": {
+    "x": 0,
+    "y": 980
+  },
+  "entities": [
+    {
+      "id": "93325aff-e756-41cb-81b5-dd8fa29eb3bb",
+      "name": "Main Camera",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": -40
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Camera2D",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": -40
+          },
+          "Zoom": 1
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "cc11f945-903f-4bce-931c-9b5b6020ec68",
+      "name": "Ground",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": 260
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 14,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ground.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.9
+        },
+        {
+          "$type": "MonoGameEngine.Engine.BoxCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Size": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1aad0e7a-1765-49d2-98f6-ae354ee77b6e",
+      "name": "Wall Left",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": -448,
+            "y": 0
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 10
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ground.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.9
+        },
+        {
+          "$type": "MonoGameEngine.Engine.BoxCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Size": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "bfb55f62-6174-48d6-abc9-d4b32a834d97",
+      "name": "Wall Right",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 448,
+            "y": 0
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 10
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ground.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.9
+        },
+        {
+          "$type": "MonoGameEngine.Engine.BoxCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Size": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "050aa67b-2176-47f4-97d5-f72a6ff646e3",
+      "name": "Crate A",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": -150,
+            "y": -100
+          },
+          "Rotation": 0.15,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/crate.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.5
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Rigidbody2D",
+          "Enabled": true,
+          "BodyType": "Dynamic",
+          "GravityScale": 1.0,
+          "LinearDamping": 0,
+          "AngularDamping": 0.05,
+          "FixedRotation": false
+        },
+        {
+          "$type": "MonoGameEngine.Engine.BoxCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Size": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4431f06e-c8c0-4865-9d22-e24317194cdd",
+      "name": "Crate B",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": -120,
+            "y": -250
+          },
+          "Rotation": -0.2,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/crate.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.5
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Rigidbody2D",
+          "Enabled": true,
+          "BodyType": "Dynamic",
+          "GravityScale": 1.0,
+          "LinearDamping": 0,
+          "AngularDamping": 0.05,
+          "FixedRotation": false
+        },
+        {
+          "$type": "MonoGameEngine.Engine.BoxCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Size": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "864be1bf-0836-4f53-93b0-314e58512de4",
+      "name": "Crate C",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 120,
+            "y": -180
+          },
+          "Rotation": 0.3,
+          "Scale": {
+            "x": 0.75,
+            "y": 0.75
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/crate.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.5
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Rigidbody2D",
+          "Enabled": true,
+          "BodyType": "Dynamic",
+          "GravityScale": 1.0,
+          "LinearDamping": 0,
+          "AngularDamping": 0.05,
+          "FixedRotation": false
+        },
+        {
+          "$type": "MonoGameEngine.Engine.BoxCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Size": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "92fbf3dc-6e5f-4451-927d-b955c812a331",
+      "name": "Bouncy Ball",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": -300
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 0.6,
+            "y": 0.6
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ball.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.3
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Rigidbody2D",
+          "Enabled": true,
+          "BodyType": "Dynamic",
+          "GravityScale": 1.0,
+          "LinearDamping": 0,
+          "AngularDamping": 0.05,
+          "FixedRotation": false
+        },
+        {
+          "$type": "MonoGameEngine.Engine.CircleCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.2,
+          "Bounciness": 0.85,
+          "Radius": 0
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e8aaeec2-3cc7-485c-9c70-9acc50b208a3",
+      "name": "Heavy Ball",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 220,
+            "y": -320
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ball.png",
+          "Tint": "#9AA7FFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.3
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Rigidbody2D",
+          "Enabled": true,
+          "BodyType": "Dynamic",
+          "GravityScale": 1.0,
+          "LinearDamping": 0,
+          "AngularDamping": 0.05,
+          "FixedRotation": false
+        },
+        {
+          "$type": "MonoGameEngine.Engine.CircleCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.2,
+          "Bounciness": 0.2,
+          "Radius": 0
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "fdc1aafb-c03d-4ed3-9954-b5115542d0c1",
+      "name": "Floating Ball",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": -300,
+            "y": -60
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ball.png",
+          "Tint": "#FFD27AFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.3
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Rigidbody2D",
+          "Enabled": true,
+          "BodyType": "Dynamic",
+          "GravityScale": 0.0,
+          "LinearDamping": 0,
+          "AngularDamping": 0.05,
+          "FixedRotation": false
+        },
+        {
+          "$type": "MonoGameEngine.Engine.CircleCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": false,
+          "Density": 1,
+          "Friction": 0.2,
+          "Bounciness": 0.5,
+          "Radius": 0
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "96bb6c38-fc29-4c50-a21f-3f04747d534a",
+      "name": "Coin",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 60,
+            "y": 190
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/coin_sheet.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.2
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteAnimator",
+          "Enabled": true,
+          "FrameWidth": 64,
+          "FrameHeight": 64,
+          "StartFrame": 0,
+          "FrameCount": 8,
+          "FramesPerSecond": 12,
+          "Loop": true,
+          "PlayOnStart": true
+        },
+        {
+          "$type": "MonoGameEngine.Engine.CircleCollider2D",
+          "Enabled": true,
+          "Offset": {
+            "x": 0,
+            "y": 0
+          },
+          "IsTrigger": true,
+          "Density": 1,
+          "Friction": 0.3,
+          "Bounciness": 0.0,
+          "Radius": 24
+        }
+      ],
+      "children": []
+    }
+  ]
+}

@@ -165,6 +165,76 @@
         }
       ],
       "children": []
+    },
+    {
+      "id": "9749389c-173d-41e0-a0d7-825153dff5eb",
+      "name": "Sprite",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": -319,
+            "y": -93
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ball.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0
+        },
+        {
+          "$type": "MonoGameEngine.Spinner",
+          "Enabled": true,
+          "DegreesPerSecond": 90
+        }
+      ],
+      "children": [
+        {
+          "id": "c30b7fab-c727-461e-b6e2-370f6a8f9974",
+          "name": "Sprite",
+          "active": true,
+          "components": [
+            {
+              "$type": "MonoGameEngine.Engine.Transform",
+              "Enabled": true,
+              "Position": {
+                "x": 0,
+                "y": 87
+              },
+              "Rotation": 0,
+              "Scale": {
+                "x": 1,
+                "y": 1
+              }
+            },
+            {
+              "$type": "MonoGameEngine.Engine.SpriteRenderer",
+              "Enabled": true,
+              "TexturePath": "Textures/crate.png",
+              "Tint": "#FFFFFFFF",
+              "Origin": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "LayerDepth": 0
+            }
+          ],
+          "children": []
+        }
+      ]
     }
   ]
 }

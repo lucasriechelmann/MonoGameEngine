@@ -68,6 +68,7 @@ Dependencies: `Game -> Engine`, `Editor -> Engine + Game`, `Tests -> Engine`. Th
 | Select | Click in the Scene view or the Hierarchy |
 | Move | Drag the gizmo arrows (X red, Y green) or the centre square. One drag is one undo step |
 | Create | Hierarchy `+ Create`, right-click menu, or the GameObject menu |
+| Browse assets | Folder tree on the left of the Assets panel (drag the splitter to resize), file grid on the right |
 | Create a sprite | Drag a texture from the Assets panel onto the Scene view |
 | Reparent / reorder | Drag a row onto another row (child) or between rows. World position is kept |
 | Rename | Double-click or `F2` in the Hierarchy |
@@ -104,6 +105,33 @@ public sealed class Spinner : Component
 Rebuild, and it appears under **Add Component** in the Inspector. The editor finds components in the Engine and in
 the game assembly. Computed or editor-only properties should be get-only or marked
 `[System.Text.Json.Serialization.JsonIgnore]` so they are not saved.
+
+## Animation
+
+Add a **SpriteAnimator** next to a **SpriteRenderer** whose texture is a sprite sheet. Set the frame size, frame count,
+frames per second and whether it loops. Frames are numbered left to right, top to bottom, starting at *Start Frame*.
+The editor shows the first frame; the animation plays when you press Play. From code: `Play()`, `Stop()`, `Restart()`
+and `CurrentFrame`. See `content/Textures/coin_sheet.png` (8 frames of 64x64) used by the `Coin` in the physics demo.
+
+## Physics
+
+Physics uses [Aether.Physics2D](https://github.com/nkast/Aether.Physics2D) and runs while the scene runs (Play mode
+or the game). Components:
+
+| Component | Purpose |
+|---|---|
+| `Rigidbody2D` | Makes the entity move: *Dynamic* (gravity, forces, collisions), *Kinematic* (moves by velocity only) or *Static*. Also gravity scale, damping and fixed rotation |
+| `BoxCollider2D` / `CircleCollider2D` | The collision shape. Size or radius `0` fits the sprite. Friction, bounciness, density, offset, and *Is Trigger* (reports overlaps without blocking) |
+
+- A collider with no Rigidbody is a static obstacle (ground, walls).
+- Scene gravity is in pixels per second squared (default `0, 980`). Select nothing in the Hierarchy to edit it in the Inspector.
+- Entity scale scales the shapes. Collider and Rigidbody settings are read when the scene starts.
+- The Scene view draws collider outlines (green, orange for triggers). Toggle them with the **Colliders** checkbox.
+- In code, override `OnCollisionEnter(Entity other)` and `OnTriggerEnter(Entity other)` on any component, and use
+  `Rigidbody2D.LinearVelocity`, `AddForce`, `AddImpulse` and `Teleport`.
+
+Open `content/Scenes/physics_demo.scene.json` in the editor and press Play to see it working. Internally the simulation
+uses 100 pixels per metre and a fixed 60 Hz step, and writes the result back to the entities' transforms.
 
 ## Adding textures
 
@@ -157,6 +185,16 @@ skipped with a warning in the Console. A full example is in `content/Scenes/main
 - **Editor code** is split into `State/` (selection, history, play mode, no drawing) and `Ui/` (ImGui panels).
 - Deeper notes and the reasons behind the design decisions are in [`CLAUDE.md`](CLAUDE.md) and
   [`.claude/knowledge/`](.claude/knowledge/).
+
+## Look and feel
+
+The editor uses a dark Windows 11 (Fluent) style: rounded controls, neutral grays and an accent blue. The UI font is
+Segoe UI, read from your system when present (it is not bundled). Icons come from the open source
+[Material Icons](https://github.com/google/material-design-icons) font (Apache 2.0). To use another icon, add a constant
+to `src/MonoGameEngine.Editor/Ui/Icons.cs` (the code point is in the
+[codepoints list](https://github.com/google/material-design-icons/blob/master/font/MaterialIcons-Regular.codepoints)),
+and it is loaded automatically. The theme lives in `Ui/Win11Theme.cs`. Third-party licenses are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Known limitations
 

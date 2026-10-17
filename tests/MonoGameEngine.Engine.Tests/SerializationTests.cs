@@ -236,10 +236,29 @@ public class SampleContentTests
 
         var scene = SceneSerializer.Load(Path.Combine(root, "Scenes", "main" + SceneSerializer.FileExtension));
 
-        Assert.Equal(5, scene.Entities.Count);
+        Assert.NotEmpty(scene.Entities); // the scene is edited in the editor, so do not assert an exact count
         Assert.NotNull(scene.Entities.Single(e => e.GetComponent<Camera2D>() != null));
         foreach (var sprite in scene.Entities.Select(e => e.GetComponent<SpriteRenderer>()).Where(s => s != null))
             Assert.True(File.Exists(Path.Combine(root, sprite!.TexturePath)), sprite.TexturePath);
         Assert.Equal("Ball", scene.Entities.Single(e => e.Name == "Crate").Children.Single().Name);
+    }
+}
+
+public class PhysicsDemoContentTests
+{
+    [Fact]
+    public void PhysicsDemoScene_LoadsWithPhysicsAndAnimation()
+    {
+        var root = AssetManager.FindContentRoot(preferSource: true);
+        Assert.NotNull(root);
+
+        var scene = SceneSerializer.Load(Path.Combine(root, "Scenes", "physics_demo" + SceneSerializer.FileExtension));
+
+        Assert.Equal(new Microsoft.Xna.Framework.Vector2(0, 980), scene.Gravity);
+        Assert.Contains(scene.Entities, e => e.GetComponent<Rigidbody2D>() != null);
+        Assert.Contains(scene.Entities, e => e.GetComponent<CircleCollider2D>() is { IsTrigger: true });
+        var coin = scene.Entities.Single(e => e.GetComponent<SpriteAnimator>() != null);
+        Assert.Equal(8, coin.GetComponent<SpriteAnimator>()!.FrameCount);
+        Assert.True(File.Exists(Path.Combine(root, coin.GetComponent<SpriteRenderer>()!.TexturePath)));
     }
 }

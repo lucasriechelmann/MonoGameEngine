@@ -1,3 +1,7 @@
+using System.Text.Json.Serialization;
+using Microsoft.Xna.Framework;
+using MonoGameEngine.Engine.Physics;
+
 namespace MonoGameEngine.Engine;
 
 /// <summary>A collection of entities arranged as a hierarchy.</summary>
@@ -7,12 +11,38 @@ public sealed class Scene
     private readonly List<Entity> _all = new();
     private readonly Dictionary<Guid, Entity> _byId = new();
     private readonly List<Entity> _pendingDestroy = new();
+    private Vector2 _gravity = new(0f, 980f);
 
     /// <summary>Display name, stored in the scene file.</summary>
     public string Name { get; set; } = "Untitled";
 
     /// <summary>Loads assets for components such as <see cref="SpriteRenderer"/>. May be null in tests.</summary>
+    [JsonIgnore]
     public AssetManager? Assets { get; set; }
+
+    /// <summary>Gravity for physics in pixels per second squared. Y points down.</summary>
+    [Tooltip("Gravity in pixels per second squared. Y points down.")]
+    public Vector2 Gravity
+    {
+        get => _gravity;
+        set
+        {
+            _gravity = value;
+            if (Physics != null) Physics.Gravity = value;
+        }
+    }
+
+    /// <summary>The running physics simulation, or null while no physics component is awake.</summary>
+    internal PhysicsWorld2D? Physics { get; private set; }
+
+    internal PhysicsWorld2D GetOrCreatePhysics() => Physics ??= new PhysicsWorld2D(_gravity);
+
+    /// <summary>Drops the physics simulation (the runner calls this when the scene stops).</summary>
+    internal void ReleasePhysics()
+    {
+        Physics?.Clear();
+        Physics = null;
+    }
 
     /// <summary>Entities without a parent, in order.</summary>
     public IReadOnlyList<Entity> Roots => _roots;

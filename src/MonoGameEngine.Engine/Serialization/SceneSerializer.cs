@@ -37,6 +37,7 @@ public static class SceneSerializer
         {
             ["version"] = CurrentVersion,
             ["name"] = scene.Name,
+            ["gravity"] = JsonSerializer.SerializeToNode(scene.Gravity, Options),
             ["entities"] = entities,
         };
         return document.ToJsonString(Options);
@@ -51,6 +52,7 @@ public static class SceneSerializer
             Log.Warning($"Scene file version {version} is newer than supported version {CurrentVersion}.");
 
         var scene = new Scene { Name = document["name"]?.GetValue<string>() ?? "Untitled", Assets = assets };
+        if (document["gravity"] is { } gravity) scene.Gravity = gravity.Deserialize<Microsoft.Xna.Framework.Vector2>(Options);
         if (document["entities"] is JsonArray entities)
         {
             foreach (var node in entities)

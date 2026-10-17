@@ -9,7 +9,7 @@ A small, Unity-inspired visual editor for MonoGame, built with ImGui.NET. It has
 - **.NET 10** (developer-approved deviation from the spec's .NET 8; set in `Directory.Build.props`, SDK pinned in `global.json`), C# latest, nullable enabled, file-scoped namespaces.
 - MonoGame **3.8.6** DesktopGL (`MonoGameVersion` in `Directory.Build.props`; tool manifest in `.config/dotnet-tools.json`). Windows is the verified platform; Linux/macOS untested.
 - ImGui.NET 1.91.6.1 with docking (verified: `DockingEnable` exists and is enabled in the editor).
-- `System.Text.Json` for all serialization. No other third-party dependencies without asking first.
+- `System.Text.Json` for all serialization. Aether.Physics2D 2.2.0 (physics, Engine only) is the one approved extra package; ask before adding any other. MonoGame.Extended was evaluated and not adopted (no physics; animations are not Inspector-friendly).
 - 2D first, but nothing that blocks 3D later (e.g. `Transform` stays extendable).
 
 ## Projects

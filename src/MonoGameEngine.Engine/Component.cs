@@ -36,4 +36,10 @@ public abstract class Component
 
     /// <summary>Called when the component or its entity is destroyed, or the scene stops.</summary>
     protected internal virtual void OnDestroy() { }
+
+    /// <summary>Called after a physics step when this entity started touching a solid <paramref name="other"/> entity.</summary>
+    protected internal virtual void OnCollisionEnter(Entity other) { }
+
+    /// <summary>Called after a physics step when this entity started overlapping a trigger, or is a trigger overlapping <paramref name="other"/>.</summary>
+    protected internal virtual void OnTriggerEnter(Entity other) { }
 }

@@ -40,6 +40,7 @@ public sealed class SceneRunner(Scene scene)
                 if (c.Enabled && c.Started) c.OnUpdate(gameTime);
             }
         }
+        Scene.Physics?.Step((float)gameTime.ElapsedGameTime.TotalSeconds);
         Scene.FlushDestroyed();
     }
 
@@ -59,6 +60,7 @@ public sealed class SceneRunner(Scene scene)
                 c.Started = false;
             }
         }
+        Scene.ReleasePhysics();
         IsRunning = false;
     }
 

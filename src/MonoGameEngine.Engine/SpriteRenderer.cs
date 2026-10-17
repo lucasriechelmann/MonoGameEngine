@@ -26,15 +26,28 @@ public sealed class SpriteRenderer : Component
     public Texture2D? GetTexture() =>
         string.IsNullOrEmpty(TexturePath) ? null : Scene?.Assets?.GetTexture(TexturePath);
 
+    /// <summary>
+    /// The part of <paramref name="texture"/> that is drawn: the whole texture, or the current frame when the
+    /// entity has a <see cref="SpriteAnimator"/>.
+    /// </summary>
+    public Rectangle GetSourceRectangle(Texture2D texture)
+    {
+        var animator = Entity.GetComponent<SpriteAnimator>();
+        return animator is { Enabled: true }
+            ? animator.GetSourceRectangle(texture.Width, texture.Height)
+            : new Rectangle(0, 0, texture.Width, texture.Height);
+    }
+
     /// <inheritdoc />
     protected internal override void OnDraw(SpriteBatch spriteBatch)
     {
         var texture = GetTexture();
         if (texture == null) return;
 
+        var source = GetSourceRectangle(texture);
         var t = Entity.Transform;
-        var origin = new Vector2(texture.Width * Origin.X, texture.Height * Origin.Y);
-        spriteBatch.Draw(texture, t.WorldPosition, null, Tint, t.WorldRotation, origin, t.WorldScale,
+        var origin = new Vector2(source.Width * Origin.X, source.Height * Origin.Y);
+        spriteBatch.Draw(texture, t.WorldPosition, source, Tint, t.WorldRotation, origin, t.WorldScale,
             SpriteEffects.None, LayerDepth);
     }
 }
