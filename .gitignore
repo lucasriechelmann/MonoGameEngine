@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+*.user
+.idea/
+# MGCB output
+**/Content/bin/
+**/Content/obj/
+# Editor-local settings (Milestone 6)
+editor-settings.json
+imgui.ini

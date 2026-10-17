@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "name": "Main",
+  "entities": [
+    {
+      "id": "b958eef4-edc5-4966-bfaa-cbb80e58dbb5",
+      "name": "Main Camera",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": 0
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Camera2D",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": 0
+          },
+          "Zoom": 1
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "fea559fc-157f-462d-a6e6-756b85620e8a",
+      "name": "Ground",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 0,
+            "y": 140
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 14,
+            "y": 2
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/ground.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.9
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1841a292-b901-40ae-bd54-94ffbc51aad9",
+      "name": "Crate",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": -120,
+            "y": 60
+          },
+          "Rotation": 0,
+          "Scale": {
+            "x": 1.5,
+            "y": 1.5
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/crate.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.5
+        },
+        {
+          "$type": "MonoGameEngine.Spinner",
+          "Enabled": true,
+          "DegreesPerSecond": 45
+        }
+      ],
+      "children": [
+        {
+          "id": "66548bf0-1132-46a6-a98a-84974ea8cb52",
+          "name": "Ball",
+          "active": true,
+          "components": [
+            {
+              "$type": "MonoGameEngine.Engine.Transform",
+              "Enabled": true,
+              "Position": {
+                "x": 70,
+                "y": -10
+              },
+              "Rotation": 0,
+              "Scale": {
+                "x": 0.5,
+                "y": 0.5
+              }
+            },
+            {
+              "$type": "MonoGameEngine.Engine.SpriteRenderer",
+              "Enabled": true,
+              "TexturePath": "Textures/ball.png",
+              "Tint": "#FFE0A0FF",
+              "Origin": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "LayerDepth": 0.3
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "ae5b8a22-6121-4d00-ae19-b1272e643847",
+      "name": "Crate 2",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": {
+            "x": 110,
+            "y": 70
+          },
+          "Rotation": 0.3,
+          "Scale": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/crate.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "LayerDepth": 0.5
+        }
+      ],
+      "children": []
+    }
+  ]
+}

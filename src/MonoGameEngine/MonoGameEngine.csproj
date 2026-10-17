@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RollForward>Major</RollForward>
+    <PublishReadyToRun>false</PublishReadyToRun>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Scene files are plain JSON loaded at runtime, so they are copied into the built Content folder. -->
+    <None Include="..\..\content\**\*.scene.json" Exclude="..\..\content\bin\**;..\..\content\obj\**"
+          Link="Content\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <MonoGameContentReference Include="..\..\content\Content.mgcb" Link="Content\Content.mgcb" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />
+    <ProjectReference Include="..\MonoGameEngine.Engine\MonoGameEngine.Engine.csproj" />
+  </ItemGroup>
+</Project>

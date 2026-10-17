@@ -1,0 +1,74 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGameEngine.Engine;
+using MonoGameEngine.Engine.Reflection;
+using MonoGameEngine.Engine.Serialization;
+
+namespace MonoGameEngine;
+
+/// <summary>The shipped game: loads a scene file and runs it. Contains no editor or ImGui code.</summary>
+public class GameApp : Game
+{
+    /// <summary>Scene loaded at startup, relative to the content folder.</summary>
+    public const string StartScene = "Scenes/main" + SceneSerializer.FileExtension;
+
+    private readonly GraphicsDeviceManager _graphics;
+    private SpriteBatch _spriteBatch = null!;
+    private AssetManager? _assets;
+    private SceneRunner? _runner;
+
+    public GameApp()
+    {
+        _graphics = new GraphicsDeviceManager(this);
+        Content.RootDirectory = "Content";
+        IsMouseVisible = true;
+        Window.Title = "MonoGameEngine";
+        Window.AllowUserResizing = true;
+    }
+
+    protected override void LoadContent()
+    {
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
+        ComponentRegistry.RegisterAssembly(typeof(GameApp).Assembly);
+
+        var root = AssetManager.FindContentRoot();
+        if (root == null)
+        {
+            Log.Error("Could not find the content folder.");
+            return;
+        }
+
+        _assets = new AssetManager(Content, root);
+        try
+        {
+            var scene = SceneSerializer.Load(Path.Combine(root, StartScene), _assets);
+            _runner = new SceneRunner(scene);
+            _runner.Start();
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Could not load '{StartScene}': {ex.Message}");
+        }
+    }
+
+    protected override void Update(GameTime gameTime)
+    {
+        _runner?.Update(gameTime);
+        base.Update(gameTime);
+    }
+
+    protected override void Draw(GameTime gameTime)
+    {
+        GraphicsDevice.Clear(Color.CornflowerBlue);
+        var bounds = GraphicsDevice.Viewport.Bounds;
+        _runner?.Draw(_spriteBatch, new Point(bounds.Width, bounds.Height));
+        base.Draw(gameTime);
+    }
+
+    protected override void UnloadContent()
+    {
+        _runner?.Stop();
+        _assets?.Dispose();
+        base.UnloadContent();
+    }
+}
