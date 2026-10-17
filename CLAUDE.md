@@ -2,9 +2,9 @@
 
 A small, Unity-inspired visual editor for MonoGame, built with ImGui.NET. It has a runtime engine library, a shippable game, and an editor app.
 
-> **Status: Milestones 1-6 implemented, pending developer review.** The solution builds and 38 xUnit tests pass. The editor was smoke-run but its interactions (gizmo, drag and drop, undo in the UI) have not been manually verified. See `.claude/knowledge/architecture.md` for the as-built design and decisions.
+> **Status: Milestones 1-6 implemented and pushed** to https://github.com/lucasriechelmann/MonoGameEngine (branch `main`, MIT license). The solution builds and 38 xUnit tests pass. The editor was smoke-run but its interactions (gizmo, drag and drop, undo in the UI) have not been manually verified. See `.claude/knowledge/architecture.md` for the as-built design and decisions.
 
-## Tech constraints 
+## Tech constraints
 
 - **.NET 10** (developer-approved deviation from the spec's .NET 8; set in `Directory.Build.props`, SDK pinned in `global.json`), C# latest, nullable enabled, file-scoped namespaces.
 - MonoGame **3.8.6** DesktopGL (`MonoGameVersion` in `Directory.Build.props`; tool manifest in `.config/dotnet-tools.json`). Windows is the verified platform; Linux/macOS untested.
@@ -35,7 +35,7 @@ Project names use the `MonoGameEngine` prefix, replacing the spec's `MyGame` pla
 - Work in milestones. After each: the solution builds and runs, summarize what was done, list deviations from the spec, then **stop for developer review** before the next milestone.
 - Asset references are source paths relative to `content/` (e.g. `Textures/crate.png`); new textures must be added to `content/Content.mgcb`. Entities have stable Guids.
 - Undo commands live in Engine (`Commands/`) so they can be unit tested; edits in the editor must go through `EditorState.Execute/Record`.
-- Build with `dotnet build MonoGameEngine.sln`, test with `dotnet test`. Never commit on the developer's behalf.
+- Build with `dotnet build MonoGameEngine.sln`, test with `dotnet test`. Commit and push only when the developer asks in that session, and add no `Co-Authored-By` trailer.
 
 ## Where to look
 
