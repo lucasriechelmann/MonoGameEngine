@@ -5,12 +5,13 @@ using Num = System.Numerics;
 namespace MonoGameEngine.Editor.Ui;
 
 /// <summary>What the Project menu can do. The editor window implements these because opening a project replaces the editor state.</summary>
+/// <param name="New">Create a project from the template.</param>
 /// <param name="Open">Choose a project file to open.</param>
 /// <param name="OpenRecent">Open a recently used project by path.</param>
 /// <param name="Settings">Show the Project Setup dialog for the open project.</param>
 /// <param name="Rebuild">Rebuild the game code and reload it, keeping the open scene.</param>
 /// <param name="Recent">Recently opened project paths, newest first.</param>
-public sealed record ProjectActions(Action Open, Action<string> OpenRecent, Action Settings, Action Rebuild, Func<IReadOnlyList<string>> Recent);
+public sealed record ProjectActions(Action New, Action Open, Action<string> OpenRecent, Action Settings, Action Rebuild, Func<IReadOnlyList<string>> Recent);
 
 /// <summary>Main menu bar (File, Edit, GameObject, View, Project), the Play / Pause / Stop toolbar, and global shortcuts.</summary>
 public sealed class MainMenu(EditorState state, EditorSettings settings, FileDialog dialog, ProjectActions project, Action exit)
@@ -90,6 +91,7 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
     private void DrawProjectMenu()
     {
         if (!ImGui.BeginMenu("Project")) return;
+        if (ImGui.MenuItem(Icons.Add + "  New Project...")) Guarded(project.New);
         if (ImGui.MenuItem(Icons.FolderOpen + "  Open Project...")) Guarded(project.Open);
         if (ImGui.BeginMenu("Open Recent"))
         {

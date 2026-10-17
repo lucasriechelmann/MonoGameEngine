@@ -13,13 +13,15 @@ public sealed record BuildResult(bool Success, string? TargetPath, string? Targe
 /// <summary>Builds a project through the <c>dotnet</c> CLI and reports where the output went.</summary>
 public static class ProjectBuilder
 {
-    /// <summary>Builds <paramref name="projectPath"/> and returns its output location.</summary>
+    /// <summary>Builds <paramref name="projectPath"/> (restoring packages) and returns its output location.</summary>
     public static async Task<BuildResult> BuildAsync(string projectPath, string configuration = "Debug", CancellationToken cancel = default)
     {
-        var (code, output) = await RunAsync(
-            ["build", projectPath, "-c", configuration, "--nologo", "-v", "q", "-getProperty:TargetPath", "-getProperty:TargetDir"], cancel);
-        var (path, dir) = ParseProperties(output);
-        return new BuildResult(code == 0, path, dir, output);
+        // Not "-getProperty" here: with it MSBuild only evaluates the project, and neither restores nor builds.
+        var (code, output) = await RunAsync(["build", projectPath, "-c", configuration, "--nologo", "-v", "q"], cancel);
+        if (code != 0) return new BuildResult(false, null, null, output);
+
+        var located = await LocateOutputAsync(projectPath, configuration, cancel);
+        return new BuildResult(true, located?.TargetPath, located?.TargetDir, output);
     }
 
     /// <summary>Asks MSBuild where the project's output goes without building it. Returns null if it cannot be evaluated.</summary>

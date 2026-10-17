@@ -2,4 +2,9 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- New Project templates. The .tmpl suffix keeps the sample sources out of this project's own compile.
+         WithCulture=false: MSBuild would read the ".cs" in "GameApp.cs.tmpl" as the Czech culture and leave the file out. -->
+    <EmbeddedResource Include="Templates\**\*" WithCulture="false" LogicalName="Templates/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

@@ -20,6 +20,9 @@ public sealed class EditorSettings
     /// <summary>Project (<c>.mgeproj</c>) opened at the next start.</summary>
     public string? LastProjectPath { get; set; }
 
+    /// <summary>Folder the last new project was created in.</summary>
+    public string? NewProjectFolder { get; set; }
+
     /// <summary>Recently opened projects, newest first.</summary>
     public List<string> RecentProjects { get; set; } = [];
 

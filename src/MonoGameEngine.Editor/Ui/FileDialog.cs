@@ -15,6 +15,19 @@ public sealed class FileDialog
     private string _fileName = "";
     private Action<string>? _accept;
     private string[] _extensions = [SceneSerializer.FileExtension];
+    private bool _pickFolder;
+    private Action? _cancel;
+
+    /// <summary>
+    /// Asks the user to pick a folder (the one being shown when they press Select Folder).
+    /// <paramref name="cancel"/> runs if the dialog is dismissed instead.
+    /// </summary>
+    public void ShowFolder(string title, string startDirectory, Action<string> accept, Action? cancel = null)
+    {
+        Show(title, false, startDirectory, "", accept, []);
+        _pickFolder = true;
+        _cancel = cancel;
+    }
 
     /// <summary>Asks the user to pick an existing scene file.</summary>
     public void ShowOpen(string startDirectory, Action<string> accept) =>
@@ -56,7 +69,7 @@ public sealed class FileDialog
                     && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left)) enter = dir;
             }
             foreach (var file in Directory.EnumerateFiles(_directory)
-                         .Where(f => _extensions.Any(e => f.EndsWith(e, StringComparison.OrdinalIgnoreCase))).Order())
+                         .Where(f => !_pickFolder && _extensions.Any(e => f.EndsWith(e, StringComparison.OrdinalIgnoreCase))).Order())
             {
                 var name = Path.GetFileName(file);
                 if (!ImGui.Selectable(Icons.Layers + "  " + name + "##" + name, name == _fileName, ImGuiSelectableFlags.AllowDoubleClick)) continue;
@@ -76,15 +89,21 @@ public sealed class FileDialog
             ImGui.SetNextItemWidth(-1);
             ImGui.InputText("##filename", ref _fileName, 128);
         }
-        if (ImGui.Button(_saving ? "Save" : "Open", new Num.Vector2(100, 0))) Accept();
+        if (ImGui.Button(_pickFolder ? "Select Folder" : _saving ? "Save" : "Open", new Num.Vector2(100, 0))) Accept();
         ImGui.SameLine();
-        if (ImGui.Button("Cancel", new Num.Vector2(100, 0)) || !open) ImGui.CloseCurrentPopup();
+        if (ImGui.Button("Cancel", new Num.Vector2(100, 0)) || !open)
+        {
+            ImGui.CloseCurrentPopup();
+            _cancel?.Invoke();
+        }
         ImGui.EndPopup();
     }
 
     private void Show(string title, bool saving, string startDirectory, string defaultName, Action<string> accept, string[] extensions)
     {
         _extensions = extensions;
+        _pickFolder = false;
+        _cancel = null;
         _title = title;
         _saving = saving;
         _directory = Directory.Exists(startDirectory) ? startDirectory : AppContext.BaseDirectory;
@@ -95,6 +114,12 @@ public sealed class FileDialog
 
     private void Accept()
     {
+        if (_pickFolder)
+        {
+            ImGui.CloseCurrentPopup();
+            _accept?.Invoke(_directory);
+            return;
+        }
         if (string.IsNullOrWhiteSpace(_fileName)) return;
         var name = _fileName.Trim();
         if (_saving && !name.EndsWith(SceneSerializer.FileExtension, StringComparison.OrdinalIgnoreCase))

@@ -30,6 +30,8 @@
 - Icons are Material Icons string constants in `Ui/Icons.cs`, concatenated with a label (`Icons.Save + "  Save"`). Adding a constant makes `BuildGlyphRanges` load it. Large tiles push `ImGuiRenderer.LargeIcons`. Reference: `Ui/AssetsPanel.cs`.
 - The editor never references a game type at compile time. Anything about the open game goes through `ProjectSession` (assembly, `AssetManager`); switching or rebuilding recreates `EditorState` and the panels in `EditorGame.CreateEditor`, so panels must not cache state across projects. Reference: `EditorGame.cs`.
 - Project logic that is not drawing (file format, solution reading, defaults, load context) goes in `MonoGameEngine.Tooling` so it can be unit tested. Reference: `Projects/ProjectSetup.cs`, `tests/.../ProjectTests.cs`.
+- Template files are embedded resources named `*.tmpl` (so their sample code is not compiled into Tooling) with `WithCulture="false"` in the csproj. Without it MSBuild reads the `.cs` of `GameApp.cs.tmpl` as the Czech culture and silently drops the file from the assembly. A test lists the expected files. Reference: `Templates/`, `TemplateTests.cs`.
+- Never pass `-getProperty` to `dotnet build` (it skips the build); use `dotnet msbuild -getProperty` to read properties. Reference: `ProjectBuilder.cs`.
 - Long work (builds) runs on a background task inside a session and is applied on the main thread from `Poll()`; do not call `Log` or touch ImGui or the GPU from the task.
 - XNA and System.Numerics both define `Vector2`: panels alias `System.Numerics` as `Num` and convert with `ToNum()` / `ToXna()` from `Ui/Ui.cs`.
 

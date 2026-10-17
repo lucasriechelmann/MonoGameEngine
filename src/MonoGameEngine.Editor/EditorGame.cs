@@ -93,8 +93,9 @@ public sealed class EditorGame : Game
         PanelLayout.Load(_settings.PanelLayout);
         _input = new ImGuiInput(Window);
         _fileDialog = new FileDialog();
-        _dialogs = new ProjectDialogs();
+        _dialogs = new ProjectDialogs(_fileDialog);
         _projectActions = new ProjectActions(
+            ShowNewProjectDialog,
             ShowOpenProjectDialog,
             OpenProjectPath,
             ShowProjectSettings,
@@ -134,7 +135,7 @@ public sealed class EditorGame : Game
         }
         else if (_pending == null)
         {
-            _dialogs.DrawStartScreen(_settings.RecentProjects, ShowOpenProjectDialog, OpenProjectPath);
+            _dialogs.DrawStartScreen(_settings.RecentProjects, ShowNewProjectDialog, ShowOpenProjectDialog, OpenProjectPath);
             _consolePanel.Draw();
         }
         _fileDialog.Draw();
@@ -181,6 +182,34 @@ public sealed class EditorGame : Game
     }
 
     // ---- projects -------------------------------------------------------------------------------
+
+    private void ShowNewProjectDialog()
+    {
+        var folder = _settings.NewProjectFolder ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MonoGameEngine");
+        var defaults = new TemplateOptions
+        {
+            Name = "MyGame",
+            ParentDirectory = folder,
+            EnginePackagePath = ProjectTemplate.FindEnginePackage(Path.Combine(AppContext.BaseDirectory, "Packages")) ?? "",
+        };
+        _dialogs.ShowNew(defaults, CreateProject);
+    }
+
+    private void CreateProject(TemplateOptions options)
+    {
+        try
+        {
+            var path = ProjectTemplate.Create(options);
+            _settings.NewProjectFolder = options.ParentDirectory;
+            Log.Info($"Created {Path.GetFileName(path)} in {Path.GetDirectoryName(path)}.");
+            OpenProjectPath(path);
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Could not create the project: {ex.Message}");
+            _dialogs.ShowError($"Could not create the project: {ex.Message}");
+        }
+    }
 
     private void ShowOpenProjectDialog()
     {

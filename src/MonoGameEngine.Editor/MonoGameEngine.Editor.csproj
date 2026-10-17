@@ -10,6 +10,14 @@
     <None Include="Assets\Fonts\*" Link="Fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
+    <EngineSource Include="..\MonoGameEngine.Engine\**\*.cs;..\MonoGameEngine.Engine\*.csproj;..\..\Directory.Build.props"
+                  Exclude="..\MonoGameEngine.Engine\bin\**;..\MonoGameEngine.Engine\obj\**" />
+  </ItemGroup>
+  <!-- New Project copies this package into the new game's local NuGet feed. Rebuilt only when the Engine sources change. -->
+  <Target Name="PackEngineFeed" AfterTargets="Build" Inputs="@(EngineSource)" Outputs="$(OutDir)Packages\MonoGameEngine.Engine.$(EngineVersion).nupkg">
+    <Exec Command="dotnet pack &quot;..\MonoGameEngine.Engine\MonoGameEngine.Engine.csproj&quot; -c $(Configuration) -o &quot;$(OutDir)Packages&quot; --nologo -v q" />
+  </Target>
+  <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" />
     <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
     <ProjectReference Include="..\MonoGameEngine.Engine\MonoGameEngine.Engine.csproj" />

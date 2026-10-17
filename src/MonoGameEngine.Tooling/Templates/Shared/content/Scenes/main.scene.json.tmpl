@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "name": "main",
+  "entities": [
+    {
+      "id": "__GUID_CAMERA__",
+      "name": "Main Camera",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": { "x": 0, "y": 0 },
+          "Rotation": 0,
+          "Scale": { "x": 1, "y": 1 }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.Camera2D",
+          "Enabled": true,
+          "Position": { "x": 0, "y": 0 },
+          "Zoom": 1
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "__GUID_CRATE__",
+      "name": "Crate",
+      "active": true,
+      "components": [
+        {
+          "$type": "MonoGameEngine.Engine.Transform",
+          "Enabled": true,
+          "Position": { "x": 0, "y": 0 },
+          "Rotation": 0,
+          "Scale": { "x": 4, "y": 4 }
+        },
+        {
+          "$type": "MonoGameEngine.Engine.SpriteRenderer",
+          "Enabled": true,
+          "TexturePath": "Textures/crate.png",
+          "Tint": "#FFFFFFFF",
+          "Origin": { "x": 0.5, "y": 0.5 },
+          "LayerDepth": 0.5
+        },
+        {
+          "$type": "__ID__.Spinner",
+          "Enabled": true,
+          "DegreesPerSecond": 45
+        }
+      ],
+      "children": []
+    }
+  ]
+}

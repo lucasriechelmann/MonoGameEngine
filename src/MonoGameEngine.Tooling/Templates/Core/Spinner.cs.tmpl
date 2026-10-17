@@ -1,0 +1,18 @@
+using Microsoft.Xna.Framework;
+using MonoGameEngine.Engine;
+
+namespace __ID__;
+
+/// <summary>Sample component: rotates its entity. It shows up in the editor's Add Component list.</summary>
+public sealed class Spinner : Component
+{
+    /// <summary>Rotation speed in degrees per second.</summary>
+    [Range(-720, 720), Tooltip("Rotation speed in degrees per second.")]
+    public float DegreesPerSecond { get; set; } = 90f;
+
+    /// <inheritdoc />
+    protected override void OnUpdate(GameTime gameTime)
+    {
+        Entity.Transform.Rotation += MathHelper.ToRadians(DegreesPerSecond) * (float)gameTime.ElapsedGameTime.TotalSeconds;
+    }
+}

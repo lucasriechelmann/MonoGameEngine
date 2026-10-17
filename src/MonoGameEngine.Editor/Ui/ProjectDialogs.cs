@@ -8,8 +8,9 @@ namespace MonoGameEngine.Editor.Ui;
 /// The dialogs around opening a project: the start screen shown when no project is open, the Project Setup
 /// dialog (project dropdowns for a solution), the "Building" modal and the error message.
 /// </summary>
-public sealed class ProjectDialogs
+public sealed class ProjectDialogs(FileDialog fileDialog)
 {
+    private const string NewTitle = "New Project";
     private const string SetupTitle = "Project Setup";
     private const string BuildTitle = "Opening Project";
     private const string ErrorTitle = "Could not open project";
@@ -21,6 +22,14 @@ public sealed class ProjectDialogs
     private string _contentRoot = "";
     private string _startupScene = "";
 
+    private TemplateOptions? _newOptions;
+    private Action<TemplateOptions>? _create;
+    private bool _openNew;
+    private string _newName = "";
+    private string _newFolder = "";
+    private bool _desktopGl = true;
+    private bool _windowsDx;
+
     private bool _buildShown;
     private string? _error;
     private bool _openError;
@@ -30,6 +39,18 @@ public sealed class ProjectDialogs
 
     /// <summary>Name shown in the building modal.</summary>
     public string BuildingName { get; set; } = "";
+
+    /// <summary>Asks for a name, a folder and the platforms of a new project, starting from <paramref name="defaults"/>.</summary>
+    public void ShowNew(TemplateOptions defaults, Action<TemplateOptions> create)
+    {
+        _newOptions = defaults;
+        _create = create;
+        _newName = defaults.Name;
+        _newFolder = defaults.ParentDirectory;
+        _desktopGl = defaults.Platforms.Contains(TemplatePlatform.DesktopGL);
+        _windowsDx = defaults.Platforms.Contains(TemplatePlatform.WindowsDX);
+        _openNew = true;
+    }
 
     /// <summary>Asks the user to confirm or adjust the project choices before the project file is written.</summary>
     public void ShowSetup(ProjectSetup setup, Action<ProjectSetup> accept)
@@ -50,7 +71,7 @@ public sealed class ProjectDialogs
     }
 
     /// <summary>Draws the welcome window used while no project is open.</summary>
-    public void DrawStartScreen(IReadOnlyList<string> recent, Action open, Action<string> openRecent)
+    public void DrawStartScreen(IReadOnlyList<string> recent, Action newProject, Action open, Action<string> openRecent)
     {
         var viewport = ImGui.GetMainViewport();
         ImGui.SetNextWindowPos(viewport.Pos + viewport.Size * 0.5f, ImGuiCond.Always, new Num.Vector2(0.5f, 0.5f));
@@ -64,8 +85,9 @@ public sealed class ProjectDialogs
         }
 
         ImGui.TextUnformatted("MonoGameEngine Editor");
-        ImGui.TextDisabled("Open a game project to start. Choose a .mgeproj, or a .sln / .csproj to set one up.");
+        ImGui.TextDisabled("Create a game project, or open a .mgeproj (or a .sln / .csproj to set one up).");
         ImGui.Spacing();
+        if (ImGui.Button(Icons.Add + "  New Project...", new Num.Vector2(-1, 0))) newProject();
         if (ImGui.Button(Icons.FolderOpen + "  Open Project...", new Num.Vector2(-1, 0))) open();
 
         if (recent.Count > 0)
@@ -84,9 +106,83 @@ public sealed class ProjectDialogs
     /// <summary>Draws whichever modal is open. Call every frame.</summary>
     public void Draw()
     {
+        DrawNew();
         DrawSetup();
         DrawBuilding();
         DrawError();
+    }
+
+    private void DrawNew()
+    {
+        if (_openNew)
+        {
+            ImGui.OpenPopup(NewTitle);
+            _openNew = false;
+        }
+        bool open = true;
+        if (_newOptions == null || !ImGui.BeginPopupModal(NewTitle, ref open, ImGuiWindowFlags.AlwaysAutoResize)) return;
+
+        var options = _newOptions;
+        const float width = 380f;
+        ImGui.SetNextItemWidth(width);
+        ImGui.InputText("Name", ref _newName, 64);
+
+        ImGui.SetNextItemWidth(width - 90);
+        ImGui.InputText("##folder", ref _newFolder, 260);
+        ImGui.SameLine();
+        if (ImGui.Button("Browse...", new Num.Vector2(80, 0)))
+        {
+            // The folder dialog is a separate popup, so this one steps aside and comes back with the choice.
+            ImGui.CloseCurrentPopup();
+            ImGui.EndPopup();
+            fileDialog.ShowFolder("Choose Project Folder", _newFolder,
+                path => { _newFolder = path; _openNew = true; }, () => _openNew = true);
+            return;
+        }
+        ImGui.SameLine();
+        ImGui.TextUnformatted("Folder");
+
+        ImGui.Spacing();
+        ImGui.TextUnformatted("Platforms");
+        ImGui.Checkbox("DesktopGL (cross-platform desktop)", ref _desktopGl);
+        ImGui.BeginDisabled(!OperatingSystem.IsWindows());
+        ImGui.Checkbox("WindowsDX (Windows, DirectX)", ref _windowsDx);
+        ImGui.EndDisabled();
+
+        options.Name = _newName;
+        options.ParentDirectory = _newFolder;
+        options.Platforms = [];
+        if (_desktopGl) options.Platforms.Add(TemplatePlatform.DesktopGL);
+        if (_windowsDx && OperatingSystem.IsWindows()) options.Platforms.Add(TemplatePlatform.WindowsDX);
+
+        var problems = ProjectTemplate.Problems(options);
+        ImGui.Spacing();
+        ImGui.PushTextWrapPos(ImGui.GetCursorPosX() + width + 80);
+        foreach (var problem in problems) ImGui.TextColored(new Num.Vector4(1f, 0.45f, 0.4f, 1f), problem);
+        if (problems.Count == 0)
+        {
+            ImGui.TextDisabled("Creates " + ProjectTemplate.ProjectDirectory(options));
+            ImGui.TextDisabled($"{options.Name}.Core holds your components; one launcher project per platform.");
+        }
+        ImGui.PopTextWrapPos();
+        ImGui.Spacing();
+
+        ImGui.BeginDisabled(problems.Count > 0);
+        if (ImGui.Button("Create", new Num.Vector2(120, 0)))
+        {
+            var create = _create;
+            ImGui.CloseCurrentPopup();
+            _newOptions = null;
+            create?.Invoke(options);
+        }
+        ImGui.EndDisabled();
+        ImGui.SameLine();
+        if (ImGui.Button("Cancel", new Num.Vector2(120, 0)) || !open)
+        {
+            _newOptions = null;
+            ImGui.CloseCurrentPopup();
+        }
+        ImGui.EndPopup();
     }
 
     private void DrawSetup()

@@ -243,6 +243,34 @@ public sealed class ProjectTests : IDisposable
     }
 
     [Fact]
+    public async Task ProjectBuilder_BuildsAFreshProjectAndReportsTheAssembly()
+    {
+        // Regression: `dotnet build -getProperty:...` only evaluates, so a never-built project got no assembly.
+        var csproj = Write("Fresh/Fresh.csproj", "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>");
+        Write("Fresh/Thing.cs", "public class Thing { }");
+
+        var result = await ProjectBuilder.BuildAsync(csproj);
+
+        Assert.True(result.Success, result.Output);
+        Assert.NotNull(result.TargetPath);
+        Assert.True(File.Exists(result.TargetPath), "the assembly was not built: " + result.TargetPath);
+        Assert.EndsWith("Fresh.dll", result.TargetPath);
+    }
+
+    [Fact]
+    public async Task ProjectBuilder_ReportsACompileFailure()
+    {
+        var csproj = Write("Broken/Broken.csproj", "<Project Sdk=\"Microsoft.NET.Sdk\"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>");
+        Write("Broken/Thing.cs", "public class Thing { this is not C# }");
+
+        var result = await ProjectBuilder.BuildAsync(csproj);
+
+        Assert.False(result.Success);
+        Assert.Contains("error", result.Output, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(result.TargetPath);
+    }
+
+    [Fact]
     public void ProjectBuilder_ParsePropertiesToleratesGarbage()
     {
         Assert.Equal((null, null), ProjectBuilder.ParseProperties("error MSB1003"));
