@@ -2,7 +2,7 @@
 
 A small, Unity-inspired visual editor for MonoGame, built with ImGui.NET. It has a runtime engine library, a shippable game, and an editor app.
 
-> **Status: Milestones 1-6 implemented and pushed** to https://github.com/lucasriechelmann/MonoGameEngine (branch `main`, MIT license). The solution builds and 38 xUnit tests pass. The editor was smoke-run but its interactions (gizmo, drag and drop, undo in the UI) have not been manually verified. See `.claude/knowledge/architecture.md` for the as-built design and decisions.
+> **Status: Milestones 1-6 implemented and pushed** to https://github.com/lucasriechelmann/MonoGameEngine (branch `main`, MIT license). The solution builds and 76 xUnit tests pass. The editor is project agnostic (see `.mgeproj` below): it opens any game project, builds it and loads its components at runtime. The editor was smoke-run (opening `MonoGameEngine.mgeproj`, the Project Setup dialog) but its interactions (gizmo, drag and drop, undo in the UI, Project menu actions, rebuild and reload) have not been manually verified, and the New Project templates are not built yet. See `.claude/knowledge/architecture.md` for the as-built design and decisions.
 
 ## Tech constraints
 
@@ -20,9 +20,15 @@ Project names use the `MonoGameEngine` prefix, replacing the spec's `MyGame` pla
 |---|---|---|
 | Engine | `src/MonoGameEngine.Engine/` | Runtime core: scene, entities, components, serialization, `SceneRunner`, inspector attributes, undo commands |
 | Game | `src/MonoGameEngine/` | The shipped game: loads and runs `content/Scenes/main.scene.json`. References Engine only. Zero editor/ImGui code |
-| Editor | `src/MonoGameEngine.Editor/` | Editor app. References Engine and Game. All ImGui code lives here |
-| Content | `content/` | Source textures (`Textures/`), scenes (`Scenes/*.scene.json`) and `Content.mgcb` (built by Game and Editor) |
-| Tests | `tests/MonoGameEngine.Engine.Tests/` | xUnit (references Engine): serialization round-trips, undo/redo, lifecycle, transforms |
+| Tooling | `src/MonoGameEngine.Tooling/` | No dependencies, no ImGui. The `.mgeproj` format (`ProjectFile`), `.sln`/`.slnx`/`.csproj` reading, `ProjectSetup` (dropdown choices and guesses), `ProjectBuilder` (`dotnet build`), `GameAssemblyContext` (collectible load context for the game DLL) |
+| Editor | `src/MonoGameEngine.Editor/` | Editor app. References Engine and Tooling, **not** Game: the game under edit is a project opened at runtime. All ImGui code lives here |
+| Content | `content/` | The sample game's source textures (`Textures/`), scenes (`Scenes/*.scene.json`) and `Content.mgcb` (built by the Game project). Any project's content folder is set in its `.mgeproj` |
+| Project file | `MonoGameEngine.mgeproj` | Opens this repo's sample game in the editor |
+| Tests | `tests/MonoGameEngine.Engine.Tests/` | xUnit (references Engine and Tooling): serialization round-trips, undo/redo, lifecycle, transforms, project files, solution reading, setup guessing, load context |
+
+## Projects and `.mgeproj`
+
+The editor edits a game project, not itself. A `*.mgeproj` (JSON, next to the game's solution) names the solution, the **code project** (platform-neutral, holds the components; the editor builds it and loads its DLL), the **launch project** (a platform head, built for the content and run as the game; empty means the code project), the content folder and the startup scene. Open it directly, or open a `.sln`/`.slnx`/`.csproj` and the Project Setup dialog offers dropdowns and writes it. Mobile heads (`-android`, `-ios`) are launch-only because the desktop editor cannot load them. Package the Engine with `dotnet pack src/MonoGameEngine.Engine -c Release -o artifacts/packages`; it does not depend on a MonoGame platform package, so each game picks its own.
 
 ## Standing rules
 

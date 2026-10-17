@@ -28,12 +28,15 @@
 - Drag and drop uses `Ui.SetPayload`/`Ui.AcceptPayload` with a payload type constant and keeps the real data in the panel or `EditorState` (`DraggedAsset`).
 - Editor buffers that touch the GPU are created once and reused (`ImGuiRenderer.cs`, `SceneViewRenderer.EnsureTarget`). `ImGuiInput` forwards nothing while the window is unfocused.
 - Icons are Material Icons string constants in `Ui/Icons.cs`, concatenated with a label (`Icons.Save + "  Save"`). Adding a constant makes `BuildGlyphRanges` load it. Large tiles push `ImGuiRenderer.LargeIcons`. Reference: `Ui/AssetsPanel.cs`.
+- The editor never references a game type at compile time. Anything about the open game goes through `ProjectSession` (assembly, `AssetManager`); switching or rebuilding recreates `EditorState` and the panels in `EditorGame.CreateEditor`, so panels must not cache state across projects. Reference: `EditorGame.cs`.
+- Project logic that is not drawing (file format, solution reading, defaults, load context) goes in `MonoGameEngine.Tooling` so it can be unit tested. Reference: `Projects/ProjectSetup.cs`, `tests/.../ProjectTests.cs`.
+- Long work (builds) runs on a background task inside a session and is applied on the main thread from `Poll()`; do not call `Log` or touch ImGui or the GPU from the task.
 - XNA and System.Numerics both define `Vector2`: panels alias `System.Numerics` as `Num` and convert with `ToNum()` / `ToXna()` from `Ui/Ui.cs`.
 
 ## Testing
 
 - Physics and animation are tested without a graphics device by driving `SceneRunner.Update` with a fixed `GameTime` (`AnimationAndPhysicsTests.cs`).
-- xUnit in `tests/MonoGameEngine.Engine.Tests/`: serialization round trips (`SerializationTests.cs`), commands (`CommandTests.cs`), lifecycle (`LifecycleTests.cs`), hierarchy and transforms (`SceneAndTransformTests.cs`). Tests that define custom components call `ComponentRegistry.RegisterAssembly`.
+- xUnit in `tests/MonoGameEngine.Engine.Tests/`: serialization round trips (`SerializationTests.cs`), commands (`CommandTests.cs`), lifecycle (`LifecycleTests.cs`), hierarchy and transforms (`SceneAndTransformTests.cs`), projects (`ProjectTests.cs`: temp-folder fixtures for solutions and project files). Tests that define custom components call `ComponentRegistry.RegisterAssembly`.
 - Editor code has no automated tests; test editor logic by keeping it in Engine or `State/`.
 
 <!-- manual:start -->

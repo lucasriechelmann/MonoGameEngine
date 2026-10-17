@@ -6,6 +6,8 @@ namespace MonoGameEngine.Editor.State;
 /// <summary>Editor preferences kept between sessions. Window layout is stored by ImGui in <c>imgui.ini</c> next to this file.</summary>
 public sealed class EditorSettings
 {
+    private const int MaxRecentProjects = 8;
+
     /// <summary>Folder holding <c>editor-settings.json</c> and <c>imgui.ini</c>.</summary>
     public static string Directory { get; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MonoGameEngine");
@@ -15,8 +17,14 @@ public sealed class EditorSettings
     /// <summary>Full path of the layout file ImGui should use.</summary>
     public static string LayoutPath => Path.Combine(Directory, "imgui.ini");
 
-    /// <summary>Scene opened at the next start.</summary>
-    public string? LastScenePath { get; set; }
+    /// <summary>Project (<c>.mgeproj</c>) opened at the next start.</summary>
+    public string? LastProjectPath { get; set; }
+
+    /// <summary>Recently opened projects, newest first.</summary>
+    public List<string> RecentProjects { get; set; } = [];
+
+    /// <summary>Scene last open in each project, keyed by project file path.</summary>
+    public Dictionary<string, string> LastSceneByProject { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Show the grid in the Scene view.</summary>
     public bool ShowGrid { get; set; } = true;
@@ -35,6 +43,15 @@ public sealed class EditorSettings
 
     /// <summary>Panel rectangles as fractions of the window work area (x, y, width, height), keyed by window name.</summary>
     public Dictionary<string, float[]>? PanelLayout { get; set; }
+
+    /// <summary>Makes <paramref name="projectPath"/> the project to reopen and moves it to the top of the recent list.</summary>
+    public void RememberProject(string projectPath)
+    {
+        LastProjectPath = projectPath;
+        RecentProjects.RemoveAll(p => string.Equals(p, projectPath, StringComparison.OrdinalIgnoreCase));
+        RecentProjects.Insert(0, projectPath);
+        if (RecentProjects.Count > MaxRecentProjects) RecentProjects.RemoveRange(MaxRecentProjects, RecentProjects.Count - MaxRecentProjects);
+    }
 
     /// <summary>Loads settings, returning defaults if the file is missing or unreadable.</summary>
     public static EditorSettings Load()

@@ -1,6 +1,6 @@
 # Feature map
 
-> All six spec milestones are implemented. Build and 38 tests pass; editor interactions are not covered by automated tests and were only smoke-run.
+> All six spec milestones are implemented, plus project agnostic opening. Build and 76 tests pass; editor interactions are not covered by automated tests and were only smoke-run.
 
 ## Runtime (Engine)
 
@@ -44,7 +44,11 @@
 | Undo/redo | Ctrl+Z / Ctrl+Y over every edit while not playing | `State/EditorState`, Engine `Commands/` |
 | Play mode | Runs a JSON copy of the scene; Stop discards it | `State/EditorState` |
 | Windows 11 look and icons | Dark Fluent theme, Segoe UI, Material Icons on menus, buttons, tree rows and asset tiles | `Ui/Win11Theme`, `Ui/Icons`, `ImGuiRenderer` |
-| Persistence | Last scene, grid flag, window size, proportional panel layout, ImGui layout | `State/EditorSettings`, `Ui/PanelLayout` |
+| Persistence | Last and recent projects, last scene per project, grid flag, window size, proportional panel layout, ImGui layout | `State/EditorSettings`, `Ui/PanelLayout` |
+| Open any game project | Open a `.mgeproj`, or a `.sln`/`.slnx`/`.csproj` through the Project Setup dialog (code project and launch project dropdowns, content folder, startup scene); builds in the background, loads the game's components | `State/ProjectSession`, `Ui/ProjectDialogs`, `EditorGame`, Tooling `ProjectFile`/`ProjectSetup` |
+| Project menu | Open Project, Open Recent, Project Settings, Rebuild and Reload Game Code (Ctrl+B, keeps the open scene) | `Ui/MainMenu` (`ProjectActions`) |
+| Start screen | Shown when no project is open: Open Project and recent list | `Ui/ProjectDialogs` |
+| Engine package | `dotnet pack` produces `MonoGameEngine.Engine` for games outside this repo | `src/MonoGameEngine.Engine/MonoGameEngine.Engine.csproj` |
 
 ## Known gaps
 
@@ -54,6 +58,10 @@
 - Closing the window does not prompt for unsaved changes (File > Exit does).
 - Textures are cached for the session, and new textures must be added to `content/Content.mgcb` manually.
 - Linux and macOS are untested.
+- No New Project templates yet (planned next: embedded templates, a platform-neutral core plus heads, a local feed holding the Engine package). Until then a game outside this repo is set up by hand.
+- "Launch project" is recorded and used for building content only; there is no Run Game button yet. The Engine package is not shipped with the editor as a feed yet.
+- Loading a game whose Engine version differs from the editor's only logs a warning. Unloaded game contexts are freed by the GC, so a reload may keep the old code in memory for a while.
+- Panel layout and window size are shared by all projects.
 
 <!-- manual:start -->
 <!-- manual:end -->

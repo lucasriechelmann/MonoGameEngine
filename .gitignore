@@ -9,3 +9,5 @@ obj/
 # Editor-local settings (Milestone 6)
 editor-settings.json
 imgui.ini
+# Packed Engine package (dotnet pack output)
+artifacts/

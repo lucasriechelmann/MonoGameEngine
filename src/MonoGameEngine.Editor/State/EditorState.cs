@@ -18,6 +18,9 @@ public enum PlayMode
     Paused,
 }
 
+/// <summary>A serialized copy of the edited scene with its file path and unsaved flag.</summary>
+public sealed record SceneSnapshot(string Json, string? Path, bool Dirty);
+
 /// <summary>
 /// Everything the panels share: the scene being edited, selection, undo history and play mode.
 /// Contains no drawing code. While playing, the scene runs as a copy made from a JSON snapshot, so
@@ -174,6 +177,30 @@ public sealed class EditorState
         catch (Exception ex)
         {
             Log.Error($"Could not open '{path}': {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>Captures the edited scene (not the play copy) so it can be restored after the game code is reloaded.</summary>
+    public SceneSnapshot TakeSnapshot() => new(SceneSerializer.Serialize(EditScene), ScenePath, Dirty);
+
+    /// <summary>
+    /// Replaces the edited scene with a snapshot, keeping its file and unsaved flag. Clears the undo history,
+    /// because it refers to objects of the old scene.
+    /// </summary>
+    public bool RestoreSnapshot(SceneSnapshot snapshot)
+    {
+        try
+        {
+            var scene = SceneSerializer.Deserialize(snapshot.Json, Assets);
+            Stop();
+            UseScene(scene, snapshot.Path);
+            Dirty = snapshot.Dirty;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Could not restore the scene after reloading: {ex.Message}");
             return false;
         }
     }

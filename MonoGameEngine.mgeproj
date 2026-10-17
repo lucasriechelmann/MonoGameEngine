@@ -1,0 +1,9 @@
+{
+  "Version": 1,
+  "Name": "MonoGameEngine",
+  "Solution": "MonoGameEngine.sln",
+  "CodeProject": "src/MonoGameEngine/MonoGameEngine.csproj",
+  "ContentRoot": "content",
+  "StartupScene": "Scenes/main.scene.json",
+  "EngineVersion": "0.1"
+}

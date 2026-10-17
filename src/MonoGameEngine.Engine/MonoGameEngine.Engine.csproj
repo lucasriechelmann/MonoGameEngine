@@ -1,6 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>MonoGameEngine.Engine</PackageId>
+    <Version>0.1.0</Version>
+    <Description>Scene, entity and component runtime for MonoGameEngine games and the MonoGameEngine editor.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" />
+    <!-- The game picks its own MonoGame platform package (DesktopGL, WindowsDX, Android, ...). All of them
+         ship an assembly named MonoGame.Framework, so the Engine binds to whichever the game uses. -->
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" PrivateAssets="all" />
     <PackageReference Include="Aether.Physics2D" Version="2.2.0" />
   </ItemGroup>
 </Project>

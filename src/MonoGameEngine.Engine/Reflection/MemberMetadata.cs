@@ -66,6 +66,15 @@ public static class MemberCache
     /// </summary>
     public static IReadOnlyList<MemberMetadata> GetMembers(Type type) => Cache.GetOrAdd(type, Build);
 
+    /// <summary>Forgets the cached members of every type in <paramref name="assembly"/> so its load context can be unloaded.</summary>
+    public static void Forget(Assembly assembly)
+    {
+        foreach (var type in Cache.Keys)
+        {
+            if (type.Assembly == assembly) Cache.TryRemove(type, out _);
+        }
+    }
+
     private static IReadOnlyList<MemberMetadata> Build(Type type) =>
         type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.GetIndexParameters().Length == 0

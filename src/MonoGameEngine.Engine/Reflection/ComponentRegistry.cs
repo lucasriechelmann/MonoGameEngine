@@ -24,6 +24,17 @@ public static class ComponentRegistry
         }
     }
 
+    /// <summary>Removes an assembly added with <see cref="RegisterAssembly"/> (for example before its load context is unloaded).</summary>
+    public static void UnregisterAssembly(Assembly assembly)
+    {
+        lock (Gate)
+        {
+            if (assembly == typeof(Component).Assembly || !Assemblies.Remove(assembly)) return;
+            _types = null;
+        }
+        MemberCache.Forget(assembly);
+    }
+
     /// <summary>All concrete component types with a public parameterless constructor, sorted by name.</summary>
     public static IReadOnlyList<Type> GetTypes()
     {

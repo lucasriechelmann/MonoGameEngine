@@ -4,8 +4,16 @@ using Num = System.Numerics;
 
 namespace MonoGameEngine.Editor.Ui;
 
-/// <summary>Main menu bar (File, Edit, GameObject, View), the Play / Pause / Stop toolbar, and global shortcuts.</summary>
-public sealed class MainMenu(EditorState state, EditorSettings settings, FileDialog dialog, Action exit)
+/// <summary>What the Project menu can do. The editor window implements these because opening a project replaces the editor state.</summary>
+/// <param name="Open">Choose a project file to open.</param>
+/// <param name="OpenRecent">Open a recently used project by path.</param>
+/// <param name="Settings">Show the Project Setup dialog for the open project.</param>
+/// <param name="Rebuild">Rebuild the game code and reload it, keeping the open scene.</param>
+/// <param name="Recent">Recently opened project paths, newest first.</param>
+public sealed record ProjectActions(Action Open, Action<string> OpenRecent, Action Settings, Action Rebuild, Func<IReadOnlyList<string>> Recent);
+
+/// <summary>Main menu bar (File, Edit, GameObject, View, Project), the Play / Pause / Stop toolbar, and global shortcuts.</summary>
+public sealed class MainMenu(EditorState state, EditorSettings settings, FileDialog dialog, ProjectActions project, Action exit)
 {
     private Action? _afterDiscardCheck;
     private bool _openUnsavedPopup;
@@ -21,6 +29,7 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
             DrawEditMenu();
             DrawCreateMenu();
             DrawViewMenu();
+            DrawProjectMenu();
             DrawPlayControls();
             ImGui.EndMainMenuBar();
         }
@@ -78,6 +87,27 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
         ImGui.EndMenu();
     }
 
+    private void DrawProjectMenu()
+    {
+        if (!ImGui.BeginMenu("Project")) return;
+        if (ImGui.MenuItem(Icons.FolderOpen + "  Open Project...")) Guarded(project.Open);
+        if (ImGui.BeginMenu("Open Recent"))
+        {
+            var recent = project.Recent();
+            if (recent.Count == 0) ImGui.TextDisabled("(none)");
+            foreach (var path in recent)
+            {
+                if (ImGui.MenuItem(Path.GetFileNameWithoutExtension(path) + "##" + path)) Guarded(() => project.OpenRecent(path));
+                if (ImGui.IsItemHovered()) ImGui.SetTooltip(path);
+            }
+            ImGui.EndMenu();
+        }
+        ImGui.Separator();
+        if (ImGui.MenuItem("Project Settings...")) project.Settings();
+        if (ImGui.MenuItem(Icons.Refresh + "  Rebuild and Reload Game Code", "Ctrl+B")) project.Rebuild();
+        ImGui.EndMenu();
+    }
+
     private void DrawPlayControls()
     {
         const float width = 92f;
@@ -116,6 +146,7 @@ public sealed class MainMenu(EditorState state, EditorSettings settings, FileDia
         if (ImGui.IsKeyPressed(ImGuiKey.O, false)) Guarded(ShowOpenDialog);
         if (ImGui.IsKeyPressed(ImGuiKey.N, false)) Guarded(state.NewScene);
         if (ImGui.IsKeyPressed(ImGuiKey.D, false) && state.Selected is { } selected) state.Duplicate(selected);
+        if (ImGui.IsKeyPressed(ImGuiKey.B, false)) project.Rebuild();
     }
 
     // ---- file actions ---------------------------------------------------------------------------

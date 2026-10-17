@@ -14,14 +14,19 @@ public sealed class FileDialog
     private string _directory = "";
     private string _fileName = "";
     private Action<string>? _accept;
+    private string[] _extensions = [SceneSerializer.FileExtension];
 
     /// <summary>Asks the user to pick an existing scene file.</summary>
     public void ShowOpen(string startDirectory, Action<string> accept) =>
-        Show("Open Scene", false, startDirectory, "", accept);
+        Show("Open Scene", false, startDirectory, "", accept, [SceneSerializer.FileExtension]);
+
+    /// <summary>Asks the user to pick an existing file with one of the given extensions (for example <c>.sln</c>).</summary>
+    public void ShowOpenFile(string title, string startDirectory, string[] extensions, Action<string> accept) =>
+        Show(title, false, startDirectory, "", accept, extensions);
 
     /// <summary>Asks the user for a file name to save a scene as.</summary>
     public void ShowSave(string startDirectory, string defaultName, Action<string> accept) =>
-        Show("Save Scene As", true, startDirectory, defaultName, accept);
+        Show("Save Scene As", true, startDirectory, defaultName, accept, [SceneSerializer.FileExtension]);
 
     /// <summary>Draws the dialog if it is open. Call every frame.</summary>
     public void Draw()
@@ -50,7 +55,8 @@ public sealed class FileDialog
                 if (ImGui.Selectable(Icons.Folder + "  " + Path.GetFileName(dir), false, ImGuiSelectableFlags.AllowDoubleClick)
                     && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left)) enter = dir;
             }
-            foreach (var file in Directory.EnumerateFiles(_directory, "*" + SceneSerializer.FileExtension).Order())
+            foreach (var file in Directory.EnumerateFiles(_directory)
+                         .Where(f => _extensions.Any(e => f.EndsWith(e, StringComparison.OrdinalIgnoreCase))).Order())
             {
                 var name = Path.GetFileName(file);
                 if (!ImGui.Selectable(Icons.Layers + "  " + name + "##" + name, name == _fileName, ImGuiSelectableFlags.AllowDoubleClick)) continue;
@@ -76,8 +82,9 @@ public sealed class FileDialog
         ImGui.EndPopup();
     }
 
-    private void Show(string title, bool saving, string startDirectory, string defaultName, Action<string> accept)
+    private void Show(string title, bool saving, string startDirectory, string defaultName, Action<string> accept, string[] extensions)
     {
+        _extensions = extensions;
         _title = title;
         _saving = saving;
         _directory = Directory.Exists(startDirectory) ? startDirectory : AppContext.BaseDirectory;

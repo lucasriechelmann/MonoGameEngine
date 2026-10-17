@@ -10,11 +10,9 @@
     <None Include="Assets\Fonts\*" Link="Fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <MonoGameContentReference Include="..\..\content\Content.mgcb" Link="Content\Content.mgcb" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="$(MonoGameVersion)" />
     <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
     <ProjectReference Include="..\MonoGameEngine.Engine\MonoGameEngine.Engine.csproj" />
-    <ProjectReference Include="..\MonoGameEngine\MonoGameEngine.csproj" />
+    <ProjectReference Include="..\MonoGameEngine.Tooling\MonoGameEngine.Tooling.csproj" />
   </ItemGroup>
 </Project>
