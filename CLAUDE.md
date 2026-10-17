@@ -48,6 +48,7 @@ The editor edits a game project, not itself. A `*.mgeproj` (JSON, next to the ga
 - Before adding or changing a data entity, a service boundary, or a cross-project dependency, read `.claude/knowledge/architecture.md`.
 - Before writing new code in an area you have not touched this session, read `.claude/knowledge/conventions.md`.
 - Before working on a feature, find its owning modules in `.claude/knowledge/features.md`.
+- Open work (features to add, limits to fix, things not yet verified) is in `.claude/knowledge/backlog.md`.
 - The original requirements and milestone list are in `MonoGameEditor-Prompt.md`.
 
 ## Context maintenance
