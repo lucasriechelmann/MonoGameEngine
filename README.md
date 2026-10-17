@@ -164,3 +164,7 @@ skipped with a warning in the Console. A full example is in `content/Scenes/main
 - Closing the window does not prompt about unsaved changes (File > Exit does).
 - Textures are cached for the session, and new textures must be added to `content/Content.mgcb` by hand.
 - Linux and macOS are untested.
+
+## License
+
+Released under the [MIT License](LICENSE).
